@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { CymaticSimulation, SimulationHandle } from './components/CymaticSimulation.tsx';
 import { ControlPanel } from './components/ControlPanel.tsx';
@@ -61,10 +62,10 @@ const App: React.FC = () => {
           <div>DEPTH: {params.depth.toFixed(1)} CM</div>
           <div>CAM Z: {params.cameraHeight.toFixed(1)}</div>
           <div className="flex items-center gap-2">
-            RING 1: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.ledColor}}></span> R{params.ledRadius.toFixed(1)} / S{params.ledSize.toFixed(2)}
+            RING 1: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.ledColor}}></span> N:{params.ledCount.toFixed(0)} / I:{params.ledIntensity.toFixed(1)} / S:{params.ledSize.toFixed(2)}
           </div>
           <div className="flex items-center gap-2">
-            RING 2: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led2Color}}></span> R{params.led2Radius.toFixed(1)} / S{params.led2Size.toFixed(2)}
+            RING 2: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led2Color}}></span> N:{params.led2Count.toFixed(0)} / I:{params.led2Intensity.toFixed(1)} / S:{params.led2Size.toFixed(2)}
           </div>
           <div>SPEED: {params.simulationSpeed.toFixed(2)}x</div>
           <div>STATUS: {isPlaying ? 'RUNNING' : 'PAUSED'}</div>

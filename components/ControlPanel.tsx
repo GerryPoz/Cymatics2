@@ -264,9 +264,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               onChange={(e) => handleChange('simulationSpeed', parseFloat(e.target.value))}
               className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-green-500 hover:accent-green-400"
             />
-            <p className="text-[10px] text-gray-500 mt-2 leading-tight">
-              Rallenta il tempo per osservare i dettagli delle interferenze in slow motion.
-            </p>
           </div>
         </div>
 
@@ -371,25 +368,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
             />
           </div>
-
-          <div className="group">
-            <div className="flex justify-between mb-2">
-              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Estensione Riflesso</label>
-              <span className="text-xs font-mono text-blue-400">{params.reflectionSpread.toFixed(1)}</span>
-            </div>
-            <input
-              type="range"
-              min="0.2"
-              max="4.0"
-              step="0.1"
-              value={params.reflectionSpread}
-              onChange={(e) => handleChange('reflectionSpread', parseFloat(e.target.value))}
-              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
-            />
-            <p className="text-[10px] text-gray-500 mt-1 leading-tight">
-              Controlla quanto il riflesso dei LED si estende sulle creste delle onde.
-            </p>
-          </div>
         </div>
 
         <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
@@ -414,38 +392,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             />
           </div>
           
-           <div className="group">
-            <div className="flex justify-between mb-2">
-              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Densità LED (Totale)</label>
-              <span className="text-xs font-mono text-purple-400">{params.ledCount.toFixed(0)}</span>
-            </div>
-            <input
-              type="range"
-              min="10"
-              max="144"
-              step="1"
-              value={params.ledCount}
-              onChange={(e) => handleChange('ledCount', parseFloat(e.target.value))}
-              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400"
-            />
-          </div>
-
-           <div className="group">
-            <div className="flex justify-between mb-2">
-              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Intensità Globale</label>
-              <span className="text-xs font-mono text-purple-400">{params.ledBrightness.toFixed(1)}</span>
-            </div>
-            <input
-              type="range"
-              min="0.1"
-              max="10.0"
-              step="0.1"
-              value={params.ledBrightness}
-              onChange={(e) => handleChange('ledBrightness', parseFloat(e.target.value))}
-              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400"
-            />
-          </div>
-
           {/* RING 1 */}
            <div className="group border-l-2 border-purple-500/30 pl-3 mt-4">
             <div className="flex justify-between items-center mb-2">
@@ -489,7 +435,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             />
             
              <div className="flex justify-between mb-1">
-              <label className="text-xs text-gray-500">Dimensione</label>
+              <label className="text-xs text-gray-500">Dimensione LED</label>
               <span className="text-xs font-mono text-gray-400">{params.ledSize.toFixed(2)}</span>
             </div>
             <input
@@ -499,6 +445,48 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               step="0.05"
               value={params.ledSize}
               onChange={(e) => handleChange('ledSize', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 mb-2"
+            />
+
+            <div className="flex justify-between mb-1">
+              <label className="text-xs text-gray-500">Densità (n° LED)</label>
+              <span className="text-xs font-mono text-gray-400">{params.ledCount.toFixed(0)}</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="144"
+              step="1"
+              value={params.ledCount}
+              onChange={(e) => handleChange('ledCount', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 mb-2"
+            />
+
+            <div className="flex justify-between mb-1">
+              <label className="text-xs text-gray-500">Intensità</label>
+              <span className="text-xs font-mono text-gray-400">{params.ledIntensity.toFixed(1)}</span>
+            </div>
+            <input
+              type="range"
+              min="0.1"
+              max="10.0"
+              step="0.1"
+              value={params.ledIntensity}
+              onChange={(e) => handleChange('ledIntensity', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 mb-2"
+            />
+
+            <div className="flex justify-between mb-1">
+              <label className="text-xs text-gray-500">Estensione Riflesso</label>
+              <span className="text-xs font-mono text-gray-400">{params.ledSpread.toFixed(1)}</span>
+            </div>
+            <input
+              type="range"
+              min="0.2"
+              max="4.0"
+              step="0.1"
+              value={params.ledSpread}
+              onChange={(e) => handleChange('ledSpread', parseFloat(e.target.value))}
               className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400"
             />
           </div>
@@ -546,7 +534,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             />
             
              <div className="flex justify-between mb-1">
-              <label className="text-xs text-gray-500">Dimensione</label>
+              <label className="text-xs text-gray-500">Dimensione LED</label>
               <span className="text-xs font-mono text-gray-400">{params.led2Size.toFixed(2)}</span>
             </div>
             <input
@@ -556,6 +544,48 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               step="0.05"
               value={params.led2Size}
               onChange={(e) => handleChange('led2Size', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:accent-pink-400 mb-2"
+            />
+
+            <div className="flex justify-between mb-1">
+              <label className="text-xs text-gray-500">Densità (n° LED)</label>
+              <span className="text-xs font-mono text-gray-400">{params.led2Count.toFixed(0)}</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="144"
+              step="1"
+              value={params.led2Count}
+              onChange={(e) => handleChange('led2Count', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:accent-pink-400 mb-2"
+            />
+
+            <div className="flex justify-between mb-1">
+              <label className="text-xs text-gray-500">Intensità</label>
+              <span className="text-xs font-mono text-gray-400">{params.led2Intensity.toFixed(1)}</span>
+            </div>
+            <input
+              type="range"
+              min="0.1"
+              max="10.0"
+              step="0.1"
+              value={params.led2Intensity}
+              onChange={(e) => handleChange('led2Intensity', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:accent-pink-400 mb-2"
+            />
+
+             <div className="flex justify-between mb-1">
+              <label className="text-xs text-gray-500">Estensione Riflesso</label>
+              <span className="text-xs font-mono text-gray-400">{params.led2Spread.toFixed(1)}</span>
+            </div>
+            <input
+              type="range"
+              min="0.2"
+              max="4.0"
+              step="0.1"
+              value={params.led2Spread}
+              onChange={(e) => handleChange('led2Spread', parseFloat(e.target.value))}
               className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 hover:accent-pink-400"
             />
           </div>
