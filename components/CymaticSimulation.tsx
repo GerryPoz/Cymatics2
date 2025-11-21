@@ -337,7 +337,9 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
   const paramsRef = useRef(params);
   const isPlayingRef = useRef(isPlaying);
   const timeRef = useRef(0);
+  const animIdRef = useRef<number>(0);
   const drawSceneRef = useRef<((time: number) => void) | null>(null);
+  const renderLoopRef = useRef<((now: number) => void) | null>(null);
 
   useLayoutEffect(() => {
     paramsRef.current = params;
@@ -383,7 +385,8 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
     const dt = 0.016; 
 
     for (let i = 0; i < stack; i++) {
-        const t = timeRef.current + (i * dt);
+        // Apply simulation speed to stack spacing so previews match speed settings
+        const t = timeRef.current + (i * dt * paramsRef.current.simulationSpeed);
         drawScene(t);
         ctx.drawImage(glCanvas, 0, 0);
     }
@@ -396,6 +399,10 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
       const canvas = canvasRef.current;
       const drawScene = drawSceneRef.current;
       if (canvas && drawScene) {
+        
+        // 1. PAUSE THE RENDER LOOP to prevent conflicts during resize
+        cancelAnimationFrame(animIdRef.current);
+
         const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
         if(!gl) return;
 
@@ -406,15 +413,24 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         const hdWidth = 3840;
         const hdHeight = 3840; // 1:1 Aspect Ratio
         
+        // 2. RESIZE AND CLEAR
         canvas.width = hdWidth;
         canvas.height = hdHeight;
         gl.viewport(0, 0, hdWidth, hdHeight);
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
         
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = hdWidth;
         tempCanvas.height = hdHeight;
         const ctx = tempCanvas.getContext('2d');
-        if (!ctx) return;
+        if (!ctx) {
+            // Restore on error
+            canvas.width = originalWidth;
+            canvas.height = originalHeight;
+            if (renderLoopRef.current) renderLoopRef.current(performance.now());
+            return;
+        }
 
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, hdWidth, hdHeight);
@@ -424,7 +440,8 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         const dt = 0.016; 
         
         for (let i = 0; i < frameCount; i++) {
-          const t = timeRef.current + (i * dt);
+          // Apply simulation speed to export frames too for consistency
+          const t = timeRef.current + (i * dt * paramsRef.current.simulationSpeed);
           drawScene(t);
           ctx.drawImage(canvas, 0, 0);
         }
@@ -432,7 +449,6 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         // --- WATERMARK ADDITION ---
         ctx.globalCompositeOperation = 'source-over';
         
-        // Settings for 4K image
         const fontSize = 90;
         const bottomMargin = 130;
         
@@ -448,17 +464,15 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         const totalWidth = metrics1.width + gap + metrics2.width;
         let currentX = (hdWidth - totalWidth) / 2;
 
-        // Draw CYMATICS (Light White)
         ctx.font = `300 ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
         ctx.fillText(text1, currentX, hdHeight - bottomMargin);
 
-        // Draw LED (Bold Blue)
         currentX += metrics1.width + gap;
         ctx.font = `bold ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-        ctx.fillStyle = '#3b82f6'; // Matches Tailwind blue-500
+        ctx.fillStyle = '#3b82f6';
         ctx.fillText(text2, currentX, hdHeight - bottomMargin);
         // --------------------------
 
@@ -468,10 +482,15 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         link.href = tempCanvas.toDataURL('image/png');
         link.click();
         
+        // 3. RESTORE AND RESUME
         canvas.width = originalWidth;
         canvas.height = originalHeight;
         gl.viewport(0, 0, originalWidth, originalHeight);
-        drawScene(timeRef.current);
+        
+        // Restart loop
+        if (renderLoopRef.current) {
+            renderLoopRef.current(performance.now());
+        }
       }
     }
   }));
@@ -625,7 +644,6 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
 
     drawSceneRef.current = drawScene;
 
-    let animId: number;
     let lastFrameTime = performance.now();
     let isMounted = true;
 
@@ -653,14 +671,15 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
          drawScene(timeRef.current);
       }
 
-      animId = requestAnimationFrame(renderLoop);
+      animIdRef.current = requestAnimationFrame(renderLoop);
     };
 
+    renderLoopRef.current = renderLoop;
     renderLoop(lastFrameTime);
 
     return () => {
       isMounted = false;
-      cancelAnimationFrame(animId);
+      cancelAnimationFrame(animIdRef.current);
       if (program) gl.deleteProgram(program);
     };
   }, []); 
