@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { SimulationParams, Preset, DEFAULT_PARAMS, ContainerShape } from '../types.ts';
 
@@ -594,7 +593,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Physics Engine v3.0
+        Physics Engine v4.1 - Dual Ring Update
       </div>
     </div>
   );

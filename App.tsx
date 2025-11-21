@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { CymaticSimulation, SimulationHandle } from './components/CymaticSimulation.tsx';
 import { ControlPanel } from './components/ControlPanel.tsx';
@@ -46,7 +45,7 @@ const App: React.FC = () => {
       {/* Header / Overlay UI */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-          CYMATICS <span className="font-bold text-blue-500">LED</span>
+          CYMATICS <span className="font-bold text-blue-500">LED</span> <span className="text-xs align-top text-gray-500 ml-1">v4.1</span>
         </h1>
         <p className="text-xs text-gray-400 mt-1 tracking-wide">
           SIMULATORE DI ONDE DI FARADAY
