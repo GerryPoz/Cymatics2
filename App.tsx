@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { CymaticSimulation, SimulationHandle } from './components/CymaticSimulation.tsx';
 import { ControlPanel } from './components/ControlPanel.tsx';
@@ -45,7 +46,7 @@ const App: React.FC = () => {
       {/* Header / Overlay UI */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-          CYMATICS <span className="font-bold text-blue-500">LED</span>
+          CYMATICS <span className="font-bold text-blue-500">LED</span> <span className="text-xs text-gray-600">v4.2</span>
         </h1>
         <p className="text-xs text-gray-400 mt-1 tracking-wide">
           SIMULATORE DI ONDE DI FARADAY
@@ -61,10 +62,10 @@ const App: React.FC = () => {
           <div>DEPTH: {params.depth.toFixed(1)} CM</div>
           <div>CAM Z: {params.cameraHeight.toFixed(1)}</div>
           <div className="flex items-center gap-2">
-            RING 1: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.ledColor}}></span> R{params.ledRadius.toFixed(1)} / S{params.ledSize.toFixed(2)}
+            RING 1: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.ledColor}}></span> R{params.ledRadius.toFixed(1)} / I:{params.ledIntensity.toFixed(1)}
           </div>
           <div className="flex items-center gap-2">
-            RING 2: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led2Color}}></span> R{params.led2Radius.toFixed(1)} / S{params.led2Size.toFixed(2)}
+            RING 2: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led2Color}}></span> R{params.led2Radius.toFixed(1)} / I:{params.led2Intensity.toFixed(1)}
           </div>
           <div>SPEED: {params.simulationSpeed.toFixed(2)}x</div>
           <div>STATUS: {isPlaying ? 'RUNNING' : 'PAUSED'}</div>
