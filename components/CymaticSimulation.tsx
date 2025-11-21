@@ -34,9 +34,12 @@ const fragmentShaderSource = `
   uniform float u_damping;
   uniform float u_depth;
   uniform float u_diameter;
+  uniform float u_spread; // Reflection Spread
   uniform int u_shape; // 0=Circle, 1=Square, 2=Triangle, 3=Hexagon
   
-  // Global Lighting params
+  // Lighting params
+  uniform float u_ledCount;
+  uniform float u_ledBrightness;
   uniform float u_camHeight;
   uniform vec3 u_liquidColor;
 
@@ -45,18 +48,12 @@ const fragmentShaderSource = `
   uniform float u_ledSize;
   uniform float u_ledHeight;
   uniform float u_ledRadius;
-  uniform float u_ledCount;
-  uniform float u_ledIntensity;
-  uniform float u_ledSpread;
 
   // Ring 2
   uniform vec3 u_led2Color;
   uniform float u_led2Size;
   uniform float u_led2Height;
   uniform float u_led2Radius;
-  uniform float u_led2Count;
-  uniform float u_led2Intensity;
-  uniform float u_led2Spread;
 
   #define PI 3.14159265359
   
@@ -250,8 +247,8 @@ const fragmentShaderSource = `
       return normalize(vec3(h - hx, h - hy, e.x * 0.8));
   }
 
-  // Generalized function for any ring with specific DOT SIZE, COUNT, INTENSITY and SPREAD
-  float getLedRing(vec3 ro, vec3 rd, float ringRadius, float ringHeight, float dotSizeParam, float countParam, float intensityParam, float spreadParam) {
+  // Generalized function for any ring with specific DOT SIZE
+  float getLedRing(vec3 ro, vec3 rd, float ringRadius, float ringHeight, float dotSizeParam) {
       if (abs(rd.z) < 0.001) return 0.0; 
       float t = (ringHeight - ro.z) / rd.z;
       if (t < 0.0) return 0.0; 
@@ -261,19 +258,19 @@ const fragmentShaderSource = `
       
       float distToRing = abs(r - ringRadius);
       
-      float decay = 40.0 / max(0.01, spreadParam); 
+      float decay = 40.0 / max(0.01, u_spread); 
       float glow = exp(-distToRing * decay); 
       
       float angle = atan(hit.y, hit.x);
-      float ledPhase = (angle / (2.0 * PI)) * countParam;
+      float ledPhase = (angle / (2.0 * PI)) * u_ledCount;
       float ledLocal = fract(ledPhase);
       
       float dotSize = dotSizeParam * 0.5; 
       float dot = smoothstep(dotSize + 0.1, dotSize, abs(ledLocal - 0.5));
       
-      float continuity = smoothstep(48.0, 120.0, countParam);
+      float continuity = smoothstep(48.0, 120.0, u_ledCount);
       
-      return glow * mix(dot, 1.0, continuity) * intensityParam * step(distToRing, 0.15 * spreadParam);
+      return glow * mix(dot, 1.0, continuity) * u_ledBrightness * step(distToRing, 0.15 * u_spread);
   }
 
   void main() {
@@ -302,15 +299,15 @@ const fragmentShaderSource = `
       vec3 dirB = normalize(reflDir - vec3(0.004, 0.0, 0.0));
 
       // Ring 1 Calculations
-      float r1 = getLedRing(pos, dirR, u_ledRadius, u_ledHeight, u_ledSize, u_ledCount, u_ledIntensity, u_ledSpread);
-      float g1 = getLedRing(pos, dirG, u_ledRadius, u_ledHeight, u_ledSize, u_ledCount, u_ledIntensity, u_ledSpread);
-      float b1 = getLedRing(pos, dirB, u_ledRadius, u_ledHeight, u_ledSize, u_ledCount, u_ledIntensity, u_ledSpread);
+      float r1 = getLedRing(pos, dirR, u_ledRadius, u_ledHeight, u_ledSize);
+      float g1 = getLedRing(pos, dirG, u_ledRadius, u_ledHeight, u_ledSize);
+      float b1 = getLedRing(pos, dirB, u_ledRadius, u_ledHeight, u_ledSize);
       vec3 col1 = vec3(r1, g1, b1) * u_ledColor;
 
       // Ring 2 Calculations
-      float r2 = getLedRing(pos, dirR, u_led2Radius, u_led2Height, u_led2Size, u_led2Count, u_led2Intensity, u_led2Spread);
-      float g2 = getLedRing(pos, dirG, u_led2Radius, u_led2Height, u_led2Size, u_led2Count, u_led2Intensity, u_led2Spread);
-      float b2 = getLedRing(pos, dirB, u_led2Radius, u_led2Height, u_led2Size, u_led2Count, u_led2Intensity, u_led2Spread);
+      float r2 = getLedRing(pos, dirR, u_led2Radius, u_led2Height, u_led2Size);
+      float g2 = getLedRing(pos, dirG, u_led2Radius, u_led2Height, u_led2Size);
+      float b2 = getLedRing(pos, dirB, u_led2Radius, u_led2Height, u_led2Size);
       vec3 col2 = vec3(r2, g2, b2) * u_led2Color;
 
       vec3 reflection = col1 + col2;
@@ -510,25 +507,21 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
       damp: gl.getUniformLocation(program, "u_damping"),
       depth: gl.getUniformLocation(program, "u_depth"),
       diam: gl.getUniformLocation(program, "u_diameter"),
+      spread: gl.getUniformLocation(program, "u_spread"),
       shape: gl.getUniformLocation(program, "u_shape"), 
 
-      // Ring 1
+      lCount: gl.getUniformLocation(program, "u_ledCount"),
+      lBright: gl.getUniformLocation(program, "u_ledBrightness"),
+      
       lCol: gl.getUniformLocation(program, "u_ledColor"),
       lSize: gl.getUniformLocation(program, "u_ledSize"),
       lHeight: gl.getUniformLocation(program, "u_ledHeight"),
       lRad: gl.getUniformLocation(program, "u_ledRadius"),
-      lCount: gl.getUniformLocation(program, "u_ledCount"),
-      lIntens: gl.getUniformLocation(program, "u_ledIntensity"),
-      lSpread: gl.getUniformLocation(program, "u_ledSpread"),
       
-      // Ring 2
       l2Col: gl.getUniformLocation(program, "u_led2Color"),
       l2Size: gl.getUniformLocation(program, "u_led2Size"),
       l2Height: gl.getUniformLocation(program, "u_led2Height"),
       l2Rad: gl.getUniformLocation(program, "u_led2Radius"),
-      l2Count: gl.getUniformLocation(program, "u_led2Count"),
-      l2Intens: gl.getUniformLocation(program, "u_led2Intensity"),
-      l2Spread: gl.getUniformLocation(program, "u_led2Spread"),
 
       cHeight: gl.getUniformLocation(program, "u_camHeight"),
       wCol: gl.getUniformLocation(program, "u_liquidColor"),
@@ -555,6 +548,9 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
       gl.uniform1f(uLoc.damp, p.damping);
       gl.uniform1f(uLoc.depth, p.depth);
       gl.uniform1f(uLoc.diam, p.diameter);
+      gl.uniform1f(uLoc.spread, p.reflectionSpread);
+      gl.uniform1f(uLoc.lCount, p.ledCount);
+      gl.uniform1f(uLoc.lBright, p.ledBrightness);
       gl.uniform1f(uLoc.cHeight, p.cameraHeight);
 
       let shapeInt = 0;
@@ -563,25 +559,16 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
       if (p.containerShape === 'hexagon') shapeInt = 3;
       gl.uniform1i(uLoc.shape, shapeInt);
       
-      const containerRadius = p.diameter / 2.0;
-      
-      // Ring 1
       gl.uniform1f(uLoc.lSize, p.ledSize);
       gl.uniform1f(uLoc.lHeight, p.ledHeight);
+      const containerRadius = p.diameter / 2.0;
       gl.uniform1f(uLoc.lRad, p.ledRadius / containerRadius);
-      gl.uniform1f(uLoc.lCount, p.ledCount);
-      gl.uniform1f(uLoc.lIntens, p.ledIntensity);
-      gl.uniform1f(uLoc.lSpread, p.ledSpread);
       const lC1 = hexToRgb(p.ledColor);
       gl.uniform3f(uLoc.lCol, lC1[0], lC1[1], lC1[2]);
 
-      // Ring 2
       gl.uniform1f(uLoc.l2Size, p.led2Size);
       gl.uniform1f(uLoc.l2Height, p.led2Height);
       gl.uniform1f(uLoc.l2Rad, p.led2Radius / containerRadius);
-      gl.uniform1f(uLoc.l2Count, p.led2Count);
-      gl.uniform1f(uLoc.l2Intens, p.led2Intensity);
-      gl.uniform1f(uLoc.l2Spread, p.led2Spread);
       const lC2 = hexToRgb(p.led2Color);
       gl.uniform3f(uLoc.l2Col, lC2[0], lC2[1], lC2[2]);
       
