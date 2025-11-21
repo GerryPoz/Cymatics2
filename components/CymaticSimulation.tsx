@@ -429,6 +429,39 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
           ctx.drawImage(canvas, 0, 0);
         }
 
+        // --- WATERMARK ADDITION ---
+        ctx.globalCompositeOperation = 'source-over';
+        
+        // Settings for 4K image
+        const fontSize = 90;
+        const bottomMargin = 130;
+        
+        ctx.font = `300 ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        const text1 = "CYMATICS";
+        const metrics1 = ctx.measureText(text1);
+
+        ctx.font = `bold ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        const text2 = "LED";
+        const metrics2 = ctx.measureText(text2);
+        
+        const gap = 25;
+        const totalWidth = metrics1.width + gap + metrics2.width;
+        let currentX = (hdWidth - totalWidth) / 2;
+
+        // Draw CYMATICS (Light White)
+        ctx.font = `300 ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(text1, currentX, hdHeight - bottomMargin);
+
+        // Draw LED (Bold Blue)
+        currentX += metrics1.width + gap;
+        ctx.font = `bold ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        ctx.fillStyle = '#3b82f6'; // Matches Tailwind blue-500
+        ctx.fillText(text2, currentX, hdHeight - bottomMargin);
+        // --------------------------
+
         const link = document.createElement('a');
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         link.download = `cymatics_SQ_${frameCount}x_stack_${timestamp}.png`;
