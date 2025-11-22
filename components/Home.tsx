@@ -7,7 +7,7 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({ onStart }) => {
   return (
-    <div className="relative w-full h-full min-h-screen bg-black text-white overflow-y-auto flex flex-col items-center justify-center font-sans selection:bg-blue-500 selection:text-white">
+    <div className="relative w-full h-full bg-black text-white overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start md:justify-center font-sans selection:bg-blue-500 selection:text-white">
       {/* Abstract Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-900/20 rounded-full blur-[120px] animate-pulse"></div>
@@ -15,12 +15,12 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
       </div>
 
-      <div className="z-10 max-w-5xl w-full px-6 flex flex-col items-center text-center space-y-8 py-10 my-auto">
+      <div className="z-10 max-w-5xl w-full px-6 flex flex-col items-center text-center space-y-8 py-16 md:py-10">
         
         {/* Header Section */}
         <div className="space-y-2 animate-fade-in-down">
           <h2 className="text-xs font-mono text-blue-400 tracking-[0.3em] uppercase mb-4">Physics Engine v4.3</h2>
-          <h1 className="text-6xl md:text-8xl font-light tracking-tighter">
+          <h1 className="text-5xl md:text-8xl font-light tracking-tighter">
             CYMATICS <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">LED</span>
           </h1>
         </div>
@@ -98,7 +98,7 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
         <div className="pt-8 pb-4">
           <button 
             onClick={onStart}
-            className="group relative px-12 py-6 bg-white text-black font-bold tracking-[0.2em] text-sm rounded-full overflow-hidden hover:scale-105 transition-transform duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+            className="group relative px-12 py-6 bg-white text-black font-bold tracking-[0.2em] text-sm rounded-full overflow-hidden hover:scale-105 transition-transform duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95"
           >
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
             <span className="relative flex items-center gap-3">
@@ -109,18 +109,18 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
         </div>
 
         {/* Contact / Copyright Card */}
-        <div className="mt-8 pb-8 flex justify-center w-full">
-          <div className="flex items-center gap-5 px-6 py-4 rounded-xl border border-gray-700 bg-gray-900/60 backdrop-blur-md hover:bg-gray-800/80 hover:border-blue-500/40 transition-all duration-300 shadow-2xl group">
+        <div className="mt-4 pb-8 flex justify-center w-full">
+          <div className="flex items-center gap-5 px-6 py-4 rounded-xl border border-gray-700 bg-gray-900/60 backdrop-blur-md hover:bg-gray-800/80 hover:border-blue-500/40 transition-all duration-300 shadow-2xl group w-full max-w-md md:w-auto">
              {/* Icon Container */}
-             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-800 to-black border border-gray-700 flex items-center justify-center text-blue-400 shadow-inner group-hover:scale-105 transition-transform">
+             <div className="w-12 h-12 flex-shrink-0 rounded-full bg-gradient-to-br from-gray-800 to-black border border-gray-700 flex items-center justify-center text-blue-400 shadow-inner group-hover:scale-105 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
              </div>
              
              {/* Text Info */}
-             <div className="text-left flex flex-col justify-center">
-                <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-0.5">Created & Designed by</div>
-                <div className="text-lg font-bold text-white tracking-wide">Germano Pozzati</div>
-                <a href="mailto:pliplomail@gmail.com" className="text-xs text-blue-400/80 hover:text-blue-300 transition-colors font-mono flex items-center gap-2 mt-1">
+             <div className="text-left flex flex-col justify-center overflow-hidden">
+                <div className="text-[10px] text-gray-500 uppercase tracking-widest font-mono mb-0.5 truncate">Created & Designed by</div>
+                <div className="text-lg font-bold text-white tracking-wide truncate">Germano Pozzati</div>
+                <a href="mailto:pliplomail@gmail.com" className="text-xs text-blue-400/80 hover:text-blue-300 transition-colors font-mono flex items-center gap-2 mt-1 truncate">
                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                    pliplomail@gmail.com
                 </a>
