@@ -96,6 +96,18 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     );
   };
 
+  // Logic for Split Frequency Control
+  const baseFreq = Math.floor(params.frequency / 10) * 10;
+  const fineFreq = params.frequency % 10;
+
+  const handleBaseFreqChange = (base: number) => {
+    handleChange('frequency', base + fineFreq);
+  };
+
+  const handleFineFreqChange = (fine: number) => {
+    handleChange('frequency', baseFreq + fine);
+  };
+
   if (isHidden) {
     return (
       <button
@@ -317,23 +329,51 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         {/* Wave Physics Group */}
         <div className="space-y-5">
           <h3 className="text-[10px] uppercase tracking-widest text-blue-500 font-bold mb-2">Risonanza Liquida</h3>
+          
+          {/* NEW FREQUENCY CONTROL */}
           <div className="group">
-            <div className="flex justify-between mb-2">
+            <div className="flex justify-between mb-2 items-end">
               <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Frequenza (Hz)</label>
-              <span className="text-xs font-mono text-blue-400">{params.frequency.toFixed(1)}</span>
+              <span className="text-lg font-mono text-blue-400 font-bold">{params.frequency.toFixed(2)} <span className="text-xs text-gray-500 font-normal">Hz</span></span>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="60"
-              step="0.5"
-              value={params.frequency}
-              onChange={(e) => handleChange('frequency', parseFloat(e.target.value))}
-              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
-            />
+            
+            {/* Macro Buttons (Tens) */}
+            <div className="grid grid-cols-5 gap-1 mb-3">
+              {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((val) => (
+                <button
+                  key={val}
+                  onClick={() => handleBaseFreqChange(val)}
+                  className={`py-1 text-[10px] font-mono rounded border transition-colors ${
+                    baseFreq === val
+                      ? 'bg-blue-600 text-white border-blue-500 font-bold shadow-[0_0_10px_rgba(59,130,246,0.5)]'
+                      : 'bg-gray-800 text-gray-500 border-gray-700 hover:border-blue-500/50 hover:text-blue-400'
+                  }`}
+                >
+                  {val}
+                </button>
+              ))}
+            </div>
+
+            {/* Micro Slider (Cents) */}
+            <div className="relative pt-1">
+               <div className="flex justify-between text-[9px] text-gray-500 mb-1 px-1 uppercase tracking-wider font-bold">
+                  <span>+0.00</span>
+                  <span>Fine Tuning</span>
+                  <span>+9.99</span>
+               </div>
+               <input
+                type="range"
+                min="0.00"
+                max="9.99"
+                step="0.01"
+                value={fineFreq}
+                onChange={(e) => handleFineFreqChange(parseFloat(e.target.value))}
+                className="w-full h-4 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 border border-gray-700/50"
+              />
+            </div>
           </div>
 
-          <div className="group">
+          <div className="group mt-6">
             <div className="flex justify-between mb-2">
               <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Altezza Onda (Ampiezza)</label>
               <span className="text-xs font-mono text-blue-400">{params.amplitude.toFixed(2)}</span>
@@ -431,7 +471,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Physics Engine v4.2 - Dual Ring Update
+        Physics Engine v4.3 - Precision Freq Update
       </div>
     </div>
   );
