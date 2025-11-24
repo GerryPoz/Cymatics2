@@ -32,9 +32,11 @@ const fragmentShaderSource = `
   // Physics params
   uniform float u_frequency;
   uniform float u_amplitude;
+  uniform float u_freqAmp; // New: Gain multiplier
   uniform float u_damping;
   uniform float u_depth;
   uniform float u_diameter;
+  uniform float u_density; // Viscosity/Density
   uniform int u_shape; // 0=Circle, 1=Square, 2=Triangle, 3=Hexagon
   
   uniform float u_camHeight;
@@ -60,7 +62,7 @@ const fragmentShaderSource = `
 
   #define PI 3.14159265359
   
-  // --- PHYSICS ENGINE 7.0: SHAPE-AWARE WAVES ---
+  // --- PHYSICS ENGINE 7.5: SHAPE & VISCOSITY AWARE ---
 
   float getShapeDist(vec2 p) {
       if (u_shape == 0) return length(p);
@@ -174,15 +176,22 @@ const fragmentShaderSource = `
       float hMicroB = calculateStandingWave(p, k_micro, w_micro, 12.0, seedB + 33.1);
       float microWave = mix(hMicroA, hMicroB, f_fract);
 
-      float rawHeight = mainWave + (microWave * 0.2);
+      // VISCOSITY EFFECT: High density reduces micro-waves (honey effect)
+      float densityFactor = max(1.0, u_density);
+      float rawHeight = mainWave + (microWave * 0.2 / densityFactor);
 
       float bottomFriction = 1.0 + (1.0 / (u_depth + 0.1));
       float boundaryEnvelope = smoothstep(1.0, 0.90, shapeDist);
       float damping = 1.0 - (u_damping * 0.5 * shapeDist * shapeDist * bottomFriction);
-      float sharp = exp(1.8 * (rawHeight - 0.2));
+      
+      // SHARPNESS/SURFACE TENSION: Higher density = smoother, glassier surface
+      float sharpExp = 1.8 + (u_density * 0.2); 
+      float sharp = exp(sharpExp * (rawHeight - 0.2));
+      
       float staticMeniscus = smoothstep(0.95, 1.0, shapeDist) * 0.2;
 
-      return ((sharp - 0.5) * u_amplitude * damping * boundaryEnvelope) + staticMeniscus;
+      // Multiply by u_freqAmp (Gain)
+      return ((sharp - 0.5) * u_amplitude * u_freqAmp * damping * boundaryEnvelope) + staticMeniscus;
   }
 
   vec3 getNormal(vec2 p, float h, float shapeDist) {
@@ -327,9 +336,11 @@ class Renderer {
             time: gl.getUniformLocation(program, "u_time"),
             freq: gl.getUniformLocation(program, "u_frequency"),
             amp: gl.getUniformLocation(program, "u_amplitude"),
+            freqAmp: gl.getUniformLocation(program, "u_freqAmp"), // New Uniform
             damp: gl.getUniformLocation(program, "u_damping"),
             depth: gl.getUniformLocation(program, "u_depth"),
             diam: gl.getUniformLocation(program, "u_diameter"),
+            dens: gl.getUniformLocation(program, "u_density"), // New Uniform
             shape: gl.getUniformLocation(program, "u_shape"), 
             cHeight: gl.getUniformLocation(program, "u_camHeight"),
             wCol: gl.getUniformLocation(program, "u_liquidColor"),
@@ -359,9 +370,11 @@ class Renderer {
         gl.uniform1f(this.uLoc.time, time);
         gl.uniform1f(this.uLoc.freq, p.frequency);
         gl.uniform1f(this.uLoc.amp, p.amplitude);
+        gl.uniform1f(this.uLoc.freqAmp, p.frequencyAmplification || 1.0); // Pass Gain
         gl.uniform1f(this.uLoc.damp, p.damping);
         gl.uniform1f(this.uLoc.depth, p.depth);
         gl.uniform1f(this.uLoc.diam, p.diameter);
+        gl.uniform1f(this.uLoc.dens, p.liquidDensity || 1.0); // Pass Density
         gl.uniform1f(this.uLoc.cHeight, p.cameraHeight);
 
         let shapeInt = 0;

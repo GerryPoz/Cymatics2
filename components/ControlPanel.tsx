@@ -311,6 +311,23 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-orange-500 hover:accent-orange-400"
             />
           </div>
+
+          <div className="group">
+            <div className="flex justify-between mb-2">
+              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Densità Liquido (Viscosità)</label>
+              <span className="text-xs font-mono text-orange-400">{params.liquidDensity ? params.liquidDensity.toFixed(1) : "1.0"}</span>
+            </div>
+            <input
+              type="range"
+              min="1.0"
+              max="5.0"
+              step="0.1"
+              value={params.liquidDensity || 1.0}
+              onChange={(e) => handleChange('liquidDensity', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-orange-500 hover:accent-orange-400"
+            />
+          </div>
+
            <div className="flex items-center justify-between">
             <label className="text-xs text-gray-400">Colore Fluido</label>
             <div className="relative overflow-hidden w-8 h-8 rounded-full border border-gray-600">
@@ -388,6 +405,24 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
             />
           </div>
+
+          {/* FREQUENCY AMPLIFICATION (GAIN) */}
+          <div className="group">
+            <div className="flex justify-between mb-2">
+              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Amplificazione (Gain)</label>
+              <span className="text-xs font-mono text-blue-400">{params.frequencyAmplification ? params.frequencyAmplification.toFixed(1) : "1.0"}x</span>
+            </div>
+            <input
+              type="range"
+              min="1.0"
+              max="5.0"
+              step="0.1"
+              value={params.frequencyAmplification || 1.0}
+              onChange={(e) => handleChange('frequencyAmplification', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400"
+            />
+          </div>
+
         </div>
 
         <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
@@ -471,7 +506,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Physics Engine v4.3 - Precision Freq Update
+        Physics Engine v4.5 - Viscosity Update
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
 
         <div>
           <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-            CYMATICS <span className="font-bold text-blue-500">LED</span> <span className="text-xs text-gray-600">v4.4</span>
+            CYMATICS <span className="font-bold text-blue-500">LED</span> <span className="text-xs text-gray-600">v4.5</span>
           </h1>
           <p className="text-xs text-gray-400 mt-1 tracking-wide">
             SIMULATORE DI ONDE DI FARADAY

@@ -4,6 +4,7 @@ export type ContainerShape = 'circle' | 'square' | 'triangle' | 'hexagon';
 export interface SimulationParams {
   frequency: number;     
   amplitude: number;     
+  frequencyAmplification: number; // New param: Gain/Boost
   damping: number;       
   simulationSpeed: number; 
   
@@ -28,6 +29,7 @@ export interface SimulationParams {
   cameraHeight: number;  
   exposure: number;      
   liquidColor: string;   
+  liquidDensity: number; // New param: Viscosity/Density
   depth: number;         
   diameter: number;      
   containerShape: ContainerShape; 
@@ -43,6 +45,7 @@ export interface Preset {
 export const DEFAULT_PARAMS: SimulationParams = {
   frequency: 10.0,       
   amplitude: 0.01,
+  frequencyAmplification: 1.0, // Default gain
   damping: 0.15,
   simulationSpeed: 1.0,  
   
@@ -67,6 +70,7 @@ export const DEFAULT_PARAMS: SimulationParams = {
   cameraHeight: 17.0,    
   exposure: 1.2,
   liquidColor: "#010308",
+  liquidDensity: 1.0,    // Default water-like
   depth: 5.0,            
   diameter: 9.0,
   containerShape: 'circle',
