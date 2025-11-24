@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 interface HomeProps {
@@ -17,7 +18,7 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
         
         {/* Header */}
         <div className="space-y-4 text-center">
-          <h2 className="text-[10px] md:text-xs font-mono text-blue-400 tracking-[0.3em] uppercase mb-2">Physics Engine v4.6</h2>
+          <h2 className="text-[10px] md:text-xs font-mono text-blue-400 tracking-[0.3em] uppercase mb-2">Physics Engine v5.0</h2>
           <h1 className="text-4xl md:text-7xl font-light tracking-tighter leading-tight">
             CYMATICS <br className="md:hidden" /> 
             <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">STUDIO LAB</span>

@@ -232,7 +232,7 @@ const fragmentShaderSource = `
 
   void main() {
       vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.y, u_resolution.x);
-      uv *= 2.0; 
+      uv *= 2.3; 
 
       float d = getShapeDist(uv);
       if (d > 1.0) {
