@@ -433,22 +433,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           
           <div className="group">
             <div className="flex justify-between mb-2">
-              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Luce Ambiente (3D Fill)</label>
-              <span className="text-xs font-mono text-purple-400">{params.fillIntensity ? params.fillIntensity.toFixed(1) : "0.5"}</span>
-            </div>
-            <input
-              type="range"
-              min="0.0"
-              max="5.0"
-              step="0.1"
-              value={params.fillIntensity || 0.5}
-              onChange={(e) => handleChange('fillIntensity', parseFloat(e.target.value))}
-              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400"
-            />
-          </div>
-
-          <div className="group">
-            <div className="flex justify-between mb-2">
               <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Altezza Camera</label>
               <span className="text-xs font-mono text-purple-400">{params.cameraHeight.toFixed(1)}</span>
             </div>

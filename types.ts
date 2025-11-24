@@ -37,7 +37,6 @@ export interface SimulationParams {
 
   cameraHeight: number;  
   exposure: number;      
-  fillIntensity: number; // Ambient/Slope fill
   liquidColor: string;   
   liquidDensity: number; 
   depth: number;         
@@ -88,7 +87,6 @@ export const DEFAULT_PARAMS: SimulationParams = {
 
   cameraHeight: 17.0,    
   exposure: 1.2,
-  fillIntensity: 0.5,
   liquidColor: "#010308",
   liquidDensity: 1.0,    
   depth: 5.0,            

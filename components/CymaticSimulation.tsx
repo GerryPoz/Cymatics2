@@ -40,7 +40,6 @@ const fragmentShaderSource = `
   uniform int u_shape; 
   
   uniform float u_camHeight;
-  uniform float u_fillIntensity; // Ambient fill
   uniform vec3 u_liquidColor;
 
   // Ring 1
@@ -275,13 +274,8 @@ const fragmentShaderSource = `
       float reflectionMask = smoothstep(0.98, 0.92, d);
       reflection *= reflectionMask;
 
-      // SLOPE BASED AMBIENT FILL (3D Effect)
-      // Highlight slopes, keep flat areas black
-      float slope = clamp(1.0 - norm.z, 0.0, 1.0);
-      vec3 ambientFill = vec3(1.0) * pow(slope, 1.2) * u_fillIntensity * 0.2;
-
       vec3 baseColor = u_liquidColor * 0.02; // Very dark base
-      vec3 finalColor = baseColor + reflection + ambientFill;
+      vec3 finalColor = baseColor + reflection;
 
       gl_FragColor = vec4(finalColor, 1.0);
   }
@@ -364,7 +358,6 @@ class Renderer {
             dens: gl.getUniformLocation(program, "u_density"),
             shape: gl.getUniformLocation(program, "u_shape"), 
             cHeight: gl.getUniformLocation(program, "u_camHeight"),
-            fill: gl.getUniformLocation(program, "u_fillIntensity"),
             wCol: gl.getUniformLocation(program, "u_liquidColor"),
             
             lCol: gl.getUniformLocation(program, "u_ledColor"),
@@ -408,7 +401,6 @@ class Renderer {
         gl.uniform1f(this.uLoc.diam, p.diameter);
         gl.uniform1f(this.uLoc.dens, p.liquidDensity || 1.0); 
         gl.uniform1f(this.uLoc.cHeight, p.cameraHeight);
-        gl.uniform1f(this.uLoc.fill, p.fillIntensity || 0.0);
 
         let shapeInt = 0;
         if (p.containerShape === 'square') shapeInt = 1;
