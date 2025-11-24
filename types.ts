@@ -4,7 +4,7 @@ export type ContainerShape = 'circle' | 'square' | 'triangle' | 'hexagon';
 export interface SimulationParams {
   frequency: number;     
   amplitude: number;     
-  frequencyAmplification: number; // New param: Gain/Boost
+  frequencyAmplification: number; 
   damping: number;       
   simulationSpeed: number; 
   
@@ -13,23 +13,33 @@ export interface SimulationParams {
   ledSize: number;       
   ledHeight: number;     
   ledRadius: number;     
-  ledSpread: number;     // Specific Spread for Ring 1
-  ledIntensity: number;  // Specific Intensity for Ring 1
-  ledCount: number;      // Specific Count for Ring 1
+  ledSpread: number;     
+  ledIntensity: number;  
+  ledCount: number;      
   
   // Ring 2 (Secondary)
   led2Color: string;     
   led2Size: number;      
   led2Height: number;    
   led2Radius: number;    
-  led2Spread: number;    // Specific Spread for Ring 2
-  led2Intensity: number; // Specific Intensity for Ring 2
-  led2Count: number;     // Specific Count for Ring 2
+  led2Spread: number;    
+  led2Intensity: number; 
+  led2Count: number;     
+
+  // Ring 3 (Tertiary) - NEW
+  led3Color: string;     
+  led3Size: number;      
+  led3Height: number;    
+  led3Radius: number;    
+  led3Spread: number;    
+  led3Intensity: number; 
+  led3Count: number;     
 
   cameraHeight: number;  
   exposure: number;      
+  fillIntensity: number; // Ambient/Slope fill
   liquidColor: string;   
-  liquidDensity: number; // New param: Viscosity/Density
+  liquidDensity: number; 
   depth: number;         
   diameter: number;      
   containerShape: ContainerShape; 
@@ -45,7 +55,7 @@ export interface Preset {
 export const DEFAULT_PARAMS: SimulationParams = {
   frequency: 10.0,       
   amplitude: 0.01,
-  frequencyAmplification: 1.0, // Default gain
+  frequencyAmplification: 1.0, 
   damping: 0.15,
   simulationSpeed: 1.0,  
   
@@ -67,10 +77,20 @@ export const DEFAULT_PARAMS: SimulationParams = {
   led2Intensity: 3.0,
   led2Count: 60,
 
+  // Ring 3 - NEW
+  led3Color: "#00ffcc",  
+  led3Size: 0.15,         
+  led3Height: 6.0,       
+  led3Radius: 2.5,  
+  led3Spread: 1.0,
+  led3Intensity: 3.0,
+  led3Count: 40,
+
   cameraHeight: 17.0,    
   exposure: 1.2,
+  fillIntensity: 0.5,
   liquidColor: "#010308",
-  liquidDensity: 1.0,    // Default water-like
+  liquidDensity: 1.0,    
   depth: 5.0,            
   diameter: 9.0,
   containerShape: 'circle',

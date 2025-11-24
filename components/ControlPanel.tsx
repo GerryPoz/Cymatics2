@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { SimulationParams, Preset, DEFAULT_PARAMS, ContainerShape } from '../types.ts';
 
@@ -429,6 +430,23 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         {/* Lighting Group */}
         <div className="space-y-5">
           <h3 className="text-[10px] uppercase tracking-widest text-purple-500 font-bold mb-2">Setup Ottico</h3>
+          
+          <div className="group">
+            <div className="flex justify-between mb-2">
+              <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Luce Ambiente (3D Fill)</label>
+              <span className="text-xs font-mono text-purple-400">{params.fillIntensity ? params.fillIntensity.toFixed(1) : "0.5"}</span>
+            </div>
+            <input
+              type="range"
+              min="0.0"
+              max="5.0"
+              step="0.1"
+              value={params.fillIntensity || 0.5}
+              onChange={(e) => handleChange('fillIntensity', parseFloat(e.target.value))}
+              className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400"
+            />
+          </div>
+
           <div className="group">
             <div className="flex justify-between mb-2">
               <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Altezza Camera</label>
@@ -501,11 +519,39 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             <input type="range" min="0.2" max="4.0" step="0.1" value={params.led2Spread} onChange={(e) => handleChange('led2Spread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
           </div>
 
+          {/* RING 3 - NEW */}
+          <div className="group border-l-2 border-emerald-500/30 pl-3 mt-4">
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-[10px] uppercase font-bold text-emerald-300">Anello 3 (Terziario)</label>
+               <div className="relative overflow-hidden w-4 h-4 rounded-full border border-gray-600">
+                <input type="color" value={params.led3Color} onChange={(e) => handleChange('led3Color', e.target.value)} className="absolute -top-2 -left-2 w-8 h-8 p-0 border-none cursor-pointer" />
+              </div>
+            </div>
+            
+            <div className="flex justify-between mb-1"><label className="text-xs text-gray-500">Altezza</label><span className="text-xs font-mono text-gray-400">{params.led3Height.toFixed(1)}</span></div>
+            <input type="range" min="0.2" max="10.0" step="0.1" value={params.led3Height} onChange={(e) => handleChange('led3Height', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
+
+            <div className="flex justify-between mb-1"><label className="text-xs text-gray-500">Raggio</label><span className="text-xs font-mono text-gray-400">{params.led3Radius.toFixed(1)} cm</span></div>
+            <input type="range" min="1.0" max="30.0" step="0.5" value={params.led3Radius} onChange={(e) => handleChange('led3Radius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
+            
+             <div className="flex justify-between mb-1"><label className="text-xs text-gray-500">Dimensione LED</label><span className="text-xs font-mono text-gray-400">{params.led3Size.toFixed(2)}</span></div>
+            <input type="range" min="0.05" max="2.0" step="0.05" value={params.led3Size} onChange={(e) => handleChange('led3Size', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
+            
+             <div className="flex justify-between mb-1"><label className="text-xs text-gray-500">Densità (Count)</label><span className="text-xs font-mono text-gray-400">{params.led3Count.toFixed(0)}</span></div>
+            <input type="range" min="10" max="144" step="1" value={params.led3Count} onChange={(e) => handleChange('led3Count', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
+
+             <div className="flex justify-between mb-1"><label className="text-xs text-gray-500">Intensità</label><span className="text-xs font-mono text-gray-400">{params.led3Intensity.toFixed(1)}</span></div>
+            <input type="range" min="0.1" max="10.0" step="0.1" value={params.led3Intensity} onChange={(e) => handleChange('led3Intensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
+
+             <div className="flex justify-between mb-1"><label className="text-xs text-gray-500">Estensione Riflesso</label><span className="text-xs font-mono text-gray-400">{params.led3Spread.toFixed(1)}</span></div>
+            <input type="range" min="0.2" max="4.0" step="0.1" value={params.led3Spread} onChange={(e) => handleChange('led3Spread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+          </div>
+
         </div>
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Studio Lab v4.6 - Physics Engine
+        Studio Lab v5.0 - Physics Engine
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { CymaticSimulation, SimulationHandle } from './CymaticSimulation.tsx';
 import { ControlPanel } from './ControlPanel.tsx';
@@ -59,7 +60,7 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
 
         <div>
           <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-            CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v4.6</span>
+            CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v5.0</span>
           </h1>
           <p className="text-xs text-gray-400 mt-1 tracking-wide">
             SIMULATORE DI ONDE DI FARADAY
@@ -80,6 +81,9 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
           </div>
           <div className="flex items-center gap-2">
             RING 2: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led2Color}}></span> R{params.led2Radius.toFixed(1)} / I:{params.led2Intensity.toFixed(1)}
+          </div>
+          <div className="flex items-center gap-2">
+            RING 3: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led3Color}}></span> R{params.led3Radius.toFixed(1)} / I:{params.led3Intensity.toFixed(1)}
           </div>
           <div>SPEED: {params.simulationSpeed.toFixed(2)}x</div>
           <div>STATUS: {isPlaying ? 'RUNNING' : 'PAUSED'}</div>

@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useLayoutEffect } from 'react';
 import { SimulationParams } from '../types.ts';
 
@@ -31,14 +32,15 @@ const fragmentShaderSource = `
   // Physics params
   uniform float u_frequency;
   uniform float u_amplitude;
-  uniform float u_freqAmp; // New: Gain multiplier
+  uniform float u_freqAmp; // Gain
   uniform float u_damping;
   uniform float u_depth;
   uniform float u_diameter;
-  uniform float u_density; // Viscosity/Density
-  uniform int u_shape; // 0=Circle, 1=Square, 2=Triangle, 3=Hexagon
+  uniform float u_density; // Viscosity
+  uniform int u_shape; 
   
   uniform float u_camHeight;
+  uniform float u_fillIntensity; // Ambient fill
   uniform vec3 u_liquidColor;
 
   // Ring 1
@@ -59,9 +61,18 @@ const fragmentShaderSource = `
   uniform float u_led2Intensity;
   uniform float u_ledCount2;
 
+  // Ring 3
+  uniform vec3 u_led3Color;
+  uniform float u_led3Size;
+  uniform float u_led3Height;
+  uniform float u_led3Radius;
+  uniform float u_led3Spread;
+  uniform float u_led3Intensity;
+  uniform float u_ledCount3;
+
   #define PI 3.14159265359
   
-  // --- PHYSICS ENGINE 7.5: SHAPE & VISCOSITY AWARE ---
+  // --- PHYSICS ENGINE ---
 
   float getShapeDist(vec2 p) {
       if (u_shape == 0) return length(p);
@@ -175,7 +186,7 @@ const fragmentShaderSource = `
       float hMicroB = calculateStandingWave(p, k_micro, w_micro, 12.0, seedB + 33.1);
       float microWave = mix(hMicroA, hMicroB, f_fract);
 
-      // VISCOSITY EFFECT: High density reduces micro-waves (honey effect)
+      // VISCOSITY EFFECT
       float densityFactor = max(1.0, u_density);
       float rawHeight = mainWave + (microWave * 0.2 / densityFactor);
 
@@ -183,13 +194,12 @@ const fragmentShaderSource = `
       float boundaryEnvelope = smoothstep(1.0, 0.90, shapeDist);
       float damping = 1.0 - (u_damping * 0.5 * shapeDist * shapeDist * bottomFriction);
       
-      // SHARPNESS/SURFACE TENSION: Higher density = smoother, glassier surface
+      // SURFACE TENSION
       float sharpExp = 1.8 + (u_density * 0.2); 
       float sharp = exp(sharpExp * (rawHeight - 0.2));
       
       float staticMeniscus = smoothstep(0.95, 1.0, shapeDist) * 0.2;
 
-      // Multiply by u_freqAmp (Gain)
       return ((sharp - 0.5) * u_amplitude * u_freqAmp * damping * boundaryEnvelope) + staticMeniscus;
   }
 
@@ -243,29 +253,41 @@ const fragmentShaderSource = `
       vec3 dirG = reflDir;
       vec3 dirB = normalize(reflDir - vec3(0.004, 0.0, 0.0));
 
+      // Ring 1
       float r1 = getLedRing(pos, dirR, u_ledRadius, u_ledHeight, u_ledSize, u_ledSpread, u_ledIntensity, u_ledCount1);
       float g1 = getLedRing(pos, dirG, u_ledRadius, u_ledHeight, u_ledSize, u_ledSpread, u_ledIntensity, u_ledCount1);
       float b1 = getLedRing(pos, dirB, u_ledRadius, u_ledHeight, u_ledSize, u_ledSpread, u_ledIntensity, u_ledCount1);
       vec3 col1 = vec3(r1, g1, b1) * u_ledColor;
 
+      // Ring 2
       float r2 = getLedRing(pos, dirR, u_led2Radius, u_led2Height, u_led2Size, u_led2Spread, u_led2Intensity, u_ledCount2);
       float g2 = getLedRing(pos, dirG, u_led2Radius, u_led2Height, u_led2Size, u_led2Spread, u_led2Intensity, u_ledCount2);
       float b2 = getLedRing(pos, dirB, u_led2Radius, u_led2Height, u_led2Size, u_led2Spread, u_led2Intensity, u_ledCount2);
       vec3 col2 = vec3(r2, g2, b2) * u_led2Color;
 
-      vec3 reflection = col1 + col2;
+      // Ring 3
+      float r3 = getLedRing(pos, dirR, u_led3Radius, u_led3Height, u_led3Size, u_led3Spread, u_led3Intensity, u_ledCount3);
+      float g3 = getLedRing(pos, dirG, u_led3Radius, u_led3Height, u_led3Size, u_led3Spread, u_led3Intensity, u_ledCount3);
+      float b3 = getLedRing(pos, dirB, u_led3Radius, u_led3Height, u_led3Size, u_led3Spread, u_led3Intensity, u_ledCount3);
+      vec3 col3 = vec3(r3, g3, b3) * u_led3Color;
+
+      vec3 reflection = col1 + col2 + col3;
       float reflectionMask = smoothstep(0.98, 0.92, d);
       reflection *= reflectionMask;
 
-      float fresnel = pow(1.0 - max(0.0, dot(viewDir, norm)), 3.0);
-      vec3 baseColor = u_liquidColor * 0.05; 
-      vec3 finalColor = mix(baseColor, u_liquidColor, fresnel * 0.3) + reflection;
+      // SLOPE BASED AMBIENT FILL (3D Effect)
+      // Highlight slopes, keep flat areas black
+      float slope = clamp(1.0 - norm.z, 0.0, 1.0);
+      vec3 ambientFill = vec3(1.0) * pow(slope, 1.2) * u_fillIntensity * 0.2;
+
+      vec3 baseColor = u_liquidColor * 0.02; // Very dark base
+      vec3 finalColor = baseColor + reflection + ambientFill;
 
       gl_FragColor = vec4(finalColor, 1.0);
   }
 `;
 
-// --- HELPER FUNCTIONS FOR WEBGL ---
+// --- HELPER FUNCTIONS ---
 
 const hexToRgb = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -276,7 +298,7 @@ const hexToRgb = (hex: string) => {
   ] : [1, 1, 1];
 };
 
-// Renderer Class to manage GL state
+// Renderer Class
 class Renderer {
     gl: WebGLRenderingContext;
     program: WebGLProgram;
@@ -335,14 +357,16 @@ class Renderer {
             time: gl.getUniformLocation(program, "u_time"),
             freq: gl.getUniformLocation(program, "u_frequency"),
             amp: gl.getUniformLocation(program, "u_amplitude"),
-            freqAmp: gl.getUniformLocation(program, "u_freqAmp"), // New Uniform
+            freqAmp: gl.getUniformLocation(program, "u_freqAmp"),
             damp: gl.getUniformLocation(program, "u_damping"),
             depth: gl.getUniformLocation(program, "u_depth"),
             diam: gl.getUniformLocation(program, "u_diameter"),
-            dens: gl.getUniformLocation(program, "u_density"), // New Uniform
+            dens: gl.getUniformLocation(program, "u_density"),
             shape: gl.getUniformLocation(program, "u_shape"), 
             cHeight: gl.getUniformLocation(program, "u_camHeight"),
+            fill: gl.getUniformLocation(program, "u_fillIntensity"),
             wCol: gl.getUniformLocation(program, "u_liquidColor"),
+            
             lCol: gl.getUniformLocation(program, "u_ledColor"),
             lSize: gl.getUniformLocation(program, "u_ledSize"),
             lHeight: gl.getUniformLocation(program, "u_ledHeight"),
@@ -350,6 +374,7 @@ class Renderer {
             lSpread: gl.getUniformLocation(program, "u_ledSpread"),
             lIntensity: gl.getUniformLocation(program, "u_ledIntensity"),
             lCount: gl.getUniformLocation(program, "u_ledCount1"),
+            
             l2Col: gl.getUniformLocation(program, "u_led2Color"),
             l2Size: gl.getUniformLocation(program, "u_led2Size"),
             l2Height: gl.getUniformLocation(program, "u_led2Height"),
@@ -357,6 +382,14 @@ class Renderer {
             l2Spread: gl.getUniformLocation(program, "u_led2Spread"),
             l2Intensity: gl.getUniformLocation(program, "u_led2Intensity"),
             l2Count: gl.getUniformLocation(program, "u_ledCount2"),
+
+            l3Col: gl.getUniformLocation(program, "u_led3Color"),
+            l3Size: gl.getUniformLocation(program, "u_led3Size"),
+            l3Height: gl.getUniformLocation(program, "u_led3Height"),
+            l3Rad: gl.getUniformLocation(program, "u_led3Radius"),
+            l3Spread: gl.getUniformLocation(program, "u_led3Spread"),
+            l3Intensity: gl.getUniformLocation(program, "u_led3Intensity"),
+            l3Count: gl.getUniformLocation(program, "u_ledCount3"),
         };
     }
 
@@ -369,12 +402,13 @@ class Renderer {
         gl.uniform1f(this.uLoc.time, time);
         gl.uniform1f(this.uLoc.freq, p.frequency);
         gl.uniform1f(this.uLoc.amp, p.amplitude);
-        gl.uniform1f(this.uLoc.freqAmp, p.frequencyAmplification || 1.0); // Pass Gain
+        gl.uniform1f(this.uLoc.freqAmp, p.frequencyAmplification || 1.0); 
         gl.uniform1f(this.uLoc.damp, p.damping);
         gl.uniform1f(this.uLoc.depth, p.depth);
         gl.uniform1f(this.uLoc.diam, p.diameter);
-        gl.uniform1f(this.uLoc.dens, p.liquidDensity || 1.0); // Pass Density
+        gl.uniform1f(this.uLoc.dens, p.liquidDensity || 1.0); 
         gl.uniform1f(this.uLoc.cHeight, p.cameraHeight);
+        gl.uniform1f(this.uLoc.fill, p.fillIntensity || 0.0);
 
         let shapeInt = 0;
         if (p.containerShape === 'square') shapeInt = 1;
@@ -401,6 +435,15 @@ class Renderer {
         gl.uniform1f(this.uLoc.l2Spread, p.led2Spread);
         gl.uniform1f(this.uLoc.l2Intensity, p.led2Intensity);
         gl.uniform1f(this.uLoc.l2Count, p.led2Count);
+
+        const lC3 = hexToRgb(p.led3Color);
+        gl.uniform3f(this.uLoc.l3Col, lC3[0], lC3[1], lC3[2]);
+        gl.uniform1f(this.uLoc.l3Size, p.led3Size);
+        gl.uniform1f(this.uLoc.l3Height, p.led3Height);
+        gl.uniform1f(this.uLoc.l3Rad, p.led3Radius / containerRadius);
+        gl.uniform1f(this.uLoc.l3Spread, p.led3Spread);
+        gl.uniform1f(this.uLoc.l3Intensity, p.led3Intensity);
+        gl.uniform1f(this.uLoc.l3Count, p.led3Count);
         
         const wC = hexToRgb(p.liquidColor);
         gl.uniform3f(this.uLoc.wCol, wC[0], wC[1], wC[2]);
@@ -586,7 +629,7 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         const text1 = "CYMATICS";
         const metrics1 = ctx.measureText(text1);
         ctx.font = `bold ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-        const text2 = "STUDIO LAB"; // Updated Text
+        const text2 = "STUDIO LAB"; 
         const metrics2 = ctx.measureText(text2);
         const gap = 25;
         const totalWidth = metrics1.width + gap + metrics2.width;
