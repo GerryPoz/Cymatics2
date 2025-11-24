@@ -319,7 +319,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             <input
               type="range"
               min="1.0"
-              max="5.0"
+              max="10.0"
               step="0.1"
               value={params.liquidDensity || 1.0}
               onChange={(e) => handleChange('liquidDensity', parseFloat(e.target.value))}
@@ -382,7 +382,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 min="0.00"
                 max="9.99"
                 step="0.01"
-                value={fineFreq}
+                value={fineFreq.toFixed(2)}
                 onChange={(e) => handleFineFreqChange(parseFloat(e.target.value))}
                 className="w-full h-4 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 border border-gray-700/50"
               />
