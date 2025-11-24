@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useLayoutEffect } from 'react';
 import { SimulationParams } from '../types.ts';
 
@@ -587,7 +586,7 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         const text1 = "CYMATICS";
         const metrics1 = ctx.measureText(text1);
         ctx.font = `bold ${fontSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-        const text2 = "LED";
+        const text2 = "STUDIO LAB"; // Updated Text
         const metrics2 = ctx.measureText(text2);
         const gap = 25;
         const totalWidth = metrics1.width + gap + metrics2.width;

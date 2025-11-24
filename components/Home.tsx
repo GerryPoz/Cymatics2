@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface HomeProps {
@@ -14,9 +13,9 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
     <div className="flex flex-col items-center justify-center h-full w-full space-y-12 animate-fade-in">
       {/* Header */}
       <div className="space-y-4 text-center">
-        <h2 className="text-xs font-mono text-blue-400 tracking-[0.3em] uppercase mb-2">Physics Engine v4.4</h2>
-        <h1 className="text-6xl md:text-8xl font-light tracking-tighter">
-          CYMATICS <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">LED</span>
+        <h2 className="text-xs font-mono text-blue-400 tracking-[0.3em] uppercase mb-2">Physics Engine v4.6</h2>
+        <h1 className="text-5xl md:text-7xl font-light tracking-tighter">
+          CYMATICS <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">STUDIO LAB</span>
         </h1>
       </div>
 

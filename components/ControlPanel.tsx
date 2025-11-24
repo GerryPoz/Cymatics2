@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { SimulationParams, Preset, DEFAULT_PARAMS, ContainerShape } from '../types.ts';
 
@@ -126,7 +125,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     <div className="fixed top-0 right-0 h-full w-80 bg-black/90 backdrop-blur-md border-l border-gray-900 p-6 overflow-y-auto transition-transform z-40 shadow-2xl">
       <div className="flex justify-between items-center mb-6 pt-2">
         <h2 className="text-lg font-light tracking-widest text-white border-b border-blue-900/50 pb-2 w-full">
-          CONTROLLI <span className="text-blue-500 font-bold">CIMATICA</span>
+          CONTROLLI <span className="text-blue-500 font-bold">STUDIO LAB</span>
         </h2>
         <button onClick={toggleHidden} className="absolute right-6 top-8 text-gray-500 hover:text-white">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -506,7 +505,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Physics Engine v4.5 - Viscosity Update
+        Studio Lab v4.6 - Physics Engine
       </div>
     </div>
   );
