@@ -77,7 +77,7 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
       <h2 className="text-2xl md:text-3xl font-light text-white mb-6 text-center md:text-left">INFO & CIMATICA</h2>
 
        {/* Feature Icons Grid */}
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-4">
           {/* Feature 1 */}
           <div className="flex flex-col items-center gap-3 p-5 rounded-xl border border-gray-800 bg-gray-900/30 backdrop-blur-sm">
             <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
@@ -116,6 +116,28 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* MATH SECTION (New) */}
+        <div className="w-full p-6 rounded-2xl bg-emerald-900/10 border border-emerald-800/50 backdrop-blur-sm mb-2">
+          <h3 className="text-lg font-bold text-emerald-200 flex items-center gap-3 mb-4">
+            <span className="w-6 h-1 bg-emerald-500 rounded-full"></span>
+            Il Cuore Matematico
+          </h3>
+          <p className="text-gray-300 leading-relaxed text-xs md:text-sm text-justify mb-4">
+            Questo simulatore si distingue perché non utilizza animazioni pre-registrate o texture statiche. Tutto ciò che vedi è <strong>calcolato in tempo reale</strong>, fotogramma per fotogramma, applicando rigorosi principi fisici.
+          </p>
+          <ul className="space-y-3 text-xs md:text-sm text-gray-400 list-disc pl-5">
+            <li>
+              <strong className="text-emerald-400">Interferenza d'Onda:</strong> Il software calcola come le onde sonore si propagano, rimbalzano sulle pareti (rotonde, quadrate o esagonali) e si scontrano tra loro. Dove le onde si incontrano, si sommano o si annullano, creando i pattern geometrici, esattamente come accade in natura.
+            </li>
+            <li>
+              <strong className="text-emerald-400">Simulazione dei Fluidi:</strong> Vengono riprodotte le proprietà fisiche del liquido, come la viscosità e la tensione superficiale. Modificando la densità, l'algoritmo altera il modo in cui l'energia si disperde, simulando il comportamento di fluidi diversi come acqua, olio o miele.
+            </li>
+            <li>
+              <strong className="text-emerald-400">Ottica Vettoriale (Raytracing):</strong> Infine, simuliamo la luce. Per ogni singolo pixel, il motore calcola l'angolazione precisa della superficie dell'acqua per determinare se rifletterà la luce dei LED verso la telecamera o se rimarrà in ombra, creando un effetto fotorealistico tridimensionale.
+            </li>
+          </ul>
         </div>
 
         {/* Text Descriptions */}
