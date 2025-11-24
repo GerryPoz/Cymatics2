@@ -118,7 +118,7 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
           </div>
         </div>
 
-        {/* MATH SECTION (New) */}
+        {/* MATH SECTION */}
         <div className="w-full p-6 rounded-2xl bg-emerald-900/10 border border-emerald-800/50 backdrop-blur-sm mb-2">
           <h3 className="text-lg font-bold text-emerald-200 flex items-center gap-3 mb-4">
             <span className="w-6 h-1 bg-emerald-500 rounded-full"></span>
@@ -194,14 +194,15 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
   );
 
   return (
-    <div className="relative w-full h-full bg-black text-white overflow-y-auto font-sans selection:bg-blue-500 selection:text-white">
-      {/* Background */}
+    <div className="fixed inset-0 z-0 bg-black text-white overflow-y-auto font-sans selection:bg-blue-500 selection:text-white">
+      {/* Background - Fixed position so it doesn't scroll away */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-900/10 rounded-full blur-[120px] animate-pulse"></div>
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
       </div>
 
-      <div className="relative z-10 w-full min-h-full">
+      {/* Content Wrapper - min-h-full to allow scrolling */}
+      <div className="relative z-10 w-full min-h-full flex flex-col">
         {section === 'main' && renderMain()}
         {section === 'info' && renderInfo()}
         {section === 'contacts' && renderContacts()}
