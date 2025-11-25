@@ -5,7 +5,7 @@ interface HomeProps {
   onStart: () => void;
 }
 
-type HomeSection = 'main' | 'info' | 'contacts';
+type HomeSection = 'main' | 'info' | 'contacts' | 'applications';
 
 export const Home: React.FC<HomeProps> = ({ onStart }) => {
   const [section, setSection] = useState<HomeSection>('main');
@@ -40,17 +40,24 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
           </button>
 
           {/* Menu Navigation */}
-          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:w-auto px-4">
             <button 
               onClick={() => setSection('info')}
-              className="px-6 py-3 rounded-lg border border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-blue-500/50 text-gray-300 hover:text-white transition-all text-[10px] md:text-xs tracking-widest font-bold uppercase flex items-center justify-center gap-2 w-full md:w-auto"
+              className="px-4 py-3 rounded-lg border border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-blue-500/50 text-gray-300 hover:text-white transition-all text-[10px] md:text-xs tracking-widest font-bold uppercase flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               Info & Cimatica
             </button>
             <button 
+              onClick={() => setSection('applications')}
+              className="px-4 py-3 rounded-lg border border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-emerald-500/50 text-gray-300 hover:text-white transition-all text-[10px] md:text-xs tracking-widest font-bold uppercase flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+              Applicazioni
+            </button>
+            <button 
               onClick={() => setSection('contacts')}
-              className="px-6 py-3 rounded-lg border border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-purple-500/50 text-gray-300 hover:text-white transition-all text-[10px] md:text-xs tracking-widest font-bold uppercase flex items-center justify-center gap-2 w-full md:w-auto"
+              className="px-4 py-3 rounded-lg border border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-purple-500/50 text-gray-300 hover:text-white transition-all text-[10px] md:text-xs tracking-widest font-bold uppercase flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
               Contatti
@@ -98,9 +105,9 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             </div>
             <div className="text-center px-2">
-              <h3 className="text-sm font-bold text-gray-200 tracking-wider uppercase">Dual Ring Light</h3>
+              <h3 className="text-sm font-bold text-gray-200 tracking-wider uppercase">Triple Ring Light</h3>
               <p className="text-[11px] text-gray-400 mt-2 leading-tight">
-                Illuminazione a doppio anello indipendente per riflessi complessi.
+                Illuminazione a triplo anello indipendente per riflessi complessi 3D.
               </p>
             </div>
           </div>
@@ -166,6 +173,94 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
     </div>
   );
 
+  const renderApplications = () => (
+    <div className="min-h-full flex flex-col items-center w-full max-w-6xl mx-auto px-6 py-12 animate-fade-in space-y-8">
+      <div className="w-full flex justify-start">
+        <button onClick={() => setSection('main')} className="flex items-center gap-2 text-gray-400 hover:text-white text-xs uppercase tracking-widest transition-colors py-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Torna alla Home
+        </button>
+      </div>
+
+      <h2 className="text-2xl md:text-3xl font-light text-white mb-2 text-center md:text-left">POSSIBILI APPLICAZIONI</h2>
+      <p className="text-gray-400 text-sm max-w-2xl text-center md:text-left">
+        Cymatics Studio Lab è un potente strumento di visualizzazione che trova utilità in diversi campi professionali e creativi.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full pb-10">
+        
+        {/* SCIENTIFIC */}
+        <div className="bg-gray-900/40 border border-blue-900/30 p-6 rounded-2xl backdrop-blur-sm hover:border-blue-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4 text-blue-400">
+             <div className="p-2 bg-blue-500/10 rounded-lg">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+             </div>
+             <h3 className="font-bold tracking-wider">SCIENZA & RICERCA</h3>
+          </div>
+          <ul className="space-y-4 text-xs md:text-sm text-gray-400 leading-relaxed">
+             <li>
+               <strong className="text-blue-300 block mb-1">Acustica Architettonica</strong>
+               Visualizzazione dei Modi di Risonanza in ambienti chiusi. Il simulatore mostra come le onde si accumulano in stanze di forma diversa (quadrata, esagonale), utile per comprendere l'acustica degli spazi.
+             </li>
+             <li>
+               <strong className="text-blue-300 block mb-1">Analogie Quantistiche</strong>
+               I pattern generati sono analoghi 2D delle funzioni d'onda degli orbitali atomici. Utile per visualizzare concetti astratti come il "caos quantistico" e la quantizzazione dell'energia.
+             </li>
+             <li>
+               <strong className="text-blue-300 block mb-1">Fluidodinamica</strong>
+               Studio visivo di come la viscosità (densità) e la tensione superficiale influenzano la propagazione dell'energia in un mezzo liquido.
+             </li>
+          </ul>
+        </div>
+
+        {/* EDUCATIONAL */}
+        <div className="bg-gray-900/40 border border-emerald-900/30 p-6 rounded-2xl backdrop-blur-sm hover:border-emerald-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4 text-emerald-400">
+             <div className="p-2 bg-emerald-500/10 rounded-lg">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+             </div>
+             <h3 className="font-bold tracking-wider">DIDATTICA</h3>
+          </div>
+          <ul className="space-y-4 text-xs md:text-sm text-gray-400 leading-relaxed">
+             <li>
+               <strong className="text-emerald-300 block mb-1">Fisica Ondulatoria</strong>
+               Strumento essenziale per insegnanti e studenti per visualizzare concetti altrimenti invisibili: nodi, ventri, interferenza costruttiva e distruttiva in tempo reale.
+             </li>
+             <li>
+               <strong className="text-emerald-300 block mb-1">Relazione Frequenza/Materia</strong>
+               Dimostrazione visiva immediata della relazione di dispersione: aumentando la frequenza, la lunghezza d'onda diminuisce e la complessità geometrica aumenta.
+             </li>
+          </ul>
+        </div>
+
+        {/* ARTISTIC */}
+        <div className="bg-gray-900/40 border border-purple-900/30 p-6 rounded-2xl backdrop-blur-sm hover:border-purple-500/50 transition-colors">
+          <div className="flex items-center gap-3 mb-4 text-purple-400">
+             <div className="p-2 bg-purple-500/10 rounded-lg">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+             </div>
+             <h3 className="font-bold tracking-wider">ARTE & CREATIVITÀ</h3>
+          </div>
+          <ul className="space-y-4 text-xs md:text-sm text-gray-400 leading-relaxed">
+             <li>
+               <strong className="text-purple-300 block mb-1">Visual Arts & Design</strong>
+               Generazione di texture organiche e pattern geometrici unici per stampe, proiezioni o background digitali. L'esportazione 4K permette l'uso professionale delle immagini.
+             </li>
+             <li>
+               <strong className="text-purple-300 block mb-1">Sinestesia Musicale</strong>
+               Esplorazione del rapporto suono-immagine. Artisti e musicisti possono usare il simulatore per "vedere" le frequenze che compongono o per creare visualizer statici ad alta definizione.
+             </li>
+             <li>
+               <strong className="text-purple-300 block mb-1">Meditazione</strong>
+               L'effetto "mandala" generato dalle onde stazionarie ha un naturale potere ipnotico e rilassante, utile per installazioni artistiche ambientali.
+             </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  );
+
   const renderContacts = () => (
     <div className="min-h-full flex flex-col items-center justify-center w-full px-6 py-12 animate-fade-in">
        <div className="w-full max-w-md mb-12 flex justify-start">
@@ -206,6 +301,7 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
       <div className="relative z-10 w-full min-h-full flex flex-col">
         {section === 'main' && renderMain()}
         {section === 'info' && renderInfo()}
+        {section === 'applications' && renderApplications()}
         {section === 'contacts' && renderContacts()}
       </div>
     </div>
