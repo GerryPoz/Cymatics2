@@ -18,6 +18,13 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
   // Display approximate mode for UI feedback based on the new hash logic
   const getApproxMode = (f: number) => {
       if (f < 0.1) return "FLAT (0 Hz)";
+      // Updated display logic to match shader v5.8
+      if (f >= 2.0 && f < 4.0) return "DIPOLE (2 LOBES)";
+      if (f >= 4.0 && f < 6.0) return "TRIPOLE (3 LOBES)";
+      if (f >= 6.0 && f < 8.0) return "QUADRUPOLE (4 LOBES)";
+      if (f >= 8.0 && f < 10.0) return "PENTAGON (5 LOBES)";
+      if (f >= 10.0 && f < 12.0) return "HEXAGON (6 LOBES)";
+      
       const seed = Math.floor(f * 0.4) * 12.34;
       const val = (Math.abs(Math.sin(seed) * 43758.5453) % 1) * 10.0;
       if (val < 2.0) return "TRIANGULAR";
@@ -60,7 +67,7 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
 
         <div>
           <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-            CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v5.1</span>
+            CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v6.7</span>
           </h1>
           <p className="text-xs text-gray-400 mt-1 tracking-wide">
             SIMULATORE DI ONDE DI FARADAY

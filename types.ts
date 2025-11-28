@@ -56,9 +56,9 @@ export interface Preset {
 }
 
 export const DEFAULT_PARAMS: SimulationParams = {
-  frequency: 10.0,       
-  amplitude: 0.01,
-  frequencyAmplification: 1.0, 
+  frequency: 7.0,       
+  amplitude: 0.15,
+  frequencyAmplification: 3.5, 
   damping: 0.15,
   simulationSpeed: 1.0,  
   

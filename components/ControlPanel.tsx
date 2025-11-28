@@ -574,7 +574,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Studio Lab v5.1 - Physics Engine
+        Studio Lab v6.7 - Physics Engine
       </div>
     </div>
   );
