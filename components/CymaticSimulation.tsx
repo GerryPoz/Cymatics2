@@ -100,35 +100,18 @@ const fragmentShaderSource = `
       return fract(sin(n) * 43758.5453123);
   }
 
-  // MAPPING FREQUENCY TO LOBES (2, 3, 4, 5, 6)
   float getModeFromHash(float h, float freq) {
       float val = h * 10.0;
-      
-      // Override for Square/Triangle containers
       if (u_shape == 1) {
-         if (val < 5.0) return 2.0; // 4 Lobes (Cross)
+         if (val < 5.0) return 2.0; 
          return 4.0;
       }
-      if (u_shape == 2 || u_shape == 3) return 3.0; // Hex/Tri
+      if (u_shape == 2 || u_shape == 3) return 3.0;
 
-      // CIRCLE CONTAINER PROGRESSION
-      
-      // 2 Lobes (Dipole)
-      if (freq >= 2.0 && freq < 4.0) return 1.0;
-      
-      // 3 Lobes (Tripole)
-      if (freq >= 4.0 && freq < 6.0) return 1.5;
-      
-      // 4 Lobes (Quadrupole)
-      if (freq >= 6.0 && freq < 8.0) return 2.0;
-      
-      // 5 Lobes (Pentagon)
-      if (freq >= 8.0 && freq < 10.0) return 2.5;
-      
-      // 6 Lobes (Hexagon)
-      if (freq >= 10.0 && freq < 12.0) return 3.0;
-
-      // High Freq Chaos
+      if (freq < 15.0) {
+         if (val < 5.0) return 4.0; 
+         return 3.0; 
+      }
       if (val < 4.0) return 6.0; 
       if (val < 7.0) return 4.0; 
       if (val < 8.0) return 12.0; 
@@ -139,71 +122,23 @@ const fragmentShaderSource = `
   float getWavenumber(float freq) {
       float k_phys = pow(freq, 0.6666); 
       float depthFactor = 1.0 + (1.5 / sqrt(u_depth + 0.1));
+      // Calibration K Factor applied here
       return k_phys * u_diameter * 0.18 * depthFactor * u_calK; 
   }
 
   float calculateStandingWave(vec2 p, float k, float t, float N, float seed) {
       if (u_shape == 0) {
-          // N = 1.0 -> DIPOLE (2 Lobes)
-          if (abs(N - 1.0) < 0.1) {
-             return cos(p.x * k) * cos(t);
-          }
-          
-          // N = 1.5 -> TRIPOLE PHASED (3 Lobes)
-          if (abs(N - 1.5) < 0.1) {
-             float h = 0.0;
-             // 3 waves at 120 degrees, phased in time
-             for(int i=0; i<3; i++) {
-                 float a = float(i) * 2.0944; // 120 deg
-                 vec2 dir = vec2(cos(a), sin(a));
-                 // Phase shift t by 120 deg per wave to break hex symmetry into tri
-                 float phase = float(i) * 2.0944; 
-                 h += cos(dot(p, dir) * k * 0.8) * cos(t + phase);
-             }
-             return h / 1.5;
-          }
-
-          // N = 2.0 -> QUADRUPOLE (4 Lobes/Cross)
-          if (abs(N - 2.0) < 0.1) {
-             return (cos(p.x * k) * cos(t) + cos(p.y * k) * cos(t)) * 0.5;
-          }
-
-          // N = 2.5 -> PENTAGON (5 Lobes)
-          if (abs(N - 2.5) < 0.1) {
-             float h = 0.0;
-             for(int i=0; i<5; i++) {
-                 float a = float(i) * 1.2566; // 72 deg (2PI/5)
-                 vec2 dir = vec2(cos(a), sin(a));
-                 h += cos(dot(p, dir) * k * 0.8) * cos(t);
-             }
-             return h / 2.5;
-          }
-
-          // N = 3.0 -> HEXAGON (6 Lobes - 3 Axes)
-          if (abs(N - 3.0) < 0.1) {
-              float h = 0.0;
-              for(int i=0; i<3; i++) {
-                 float a = float(i) * 2.0944; // 120 deg
-                 vec2 dir = vec2(cos(a), sin(a));
-                 h += cos(dot(p, dir) * k * 0.8) * cos(t);
-              }
-              return h / 1.5;
-          }
-
-          // General case for high N or intermediate/offset values
           float h = 0.0;
           float staticRot = 0.0; 
-          for(float i = 0.0; i < 20.0; i++) {
+          for(float i = 0.0; i < 12.0; i++) {
               if(i >= N) break;
               float angle = staticRot + (i / N) * PI; 
               vec2 dir = vec2(cos(angle), sin(angle));
               float spatial = dot(p, dir) * k;
               h += cos(spatial) * cos(t);
           }
-          return h / max(1.0, N);
+          return h / N;
       }
-
-      // Square Logic
       if (u_shape == 1) {
           float rot = floor(seed) * (PI * 0.25); 
           float c = cos(rot);
@@ -215,8 +150,6 @@ const fragmentShaderSource = `
           if (mixFactor > 0.5) return (wx + wy) * 0.5;
           return wx * wy; 
       }
-
-      // Triangle/Hex Logic
       if (u_shape == 2 || u_shape == 3) {
           float h = 0.0;
           for(int i=0; i<3; i++) {
@@ -233,27 +166,17 @@ const fragmentShaderSource = `
       if (shapeDist > 1.0) return 0.0;
       if (u_frequency < 0.1) return 0.0;
 
-      float effectiveFreq = u_frequency; // Decoupled depth
+      float effectiveFreq = u_frequency + (u_depth * 0.7); 
       float stabilityScale = 0.5; 
       float f_scaled = effectiveFreq * stabilityScale;
       float f_index = floor(f_scaled);
       float f_fract = smoothstep(0.4, 0.6, fract(f_scaled)); 
       
-      float seedA = f_index * 12.34;
+      // Calibration Mode Offset applied to seeds
+      float seedA = f_index * 12.34 + u_calMode;
       float nA = getModeFromHash(hash(seedA), u_frequency);
-      float seedB = (f_index + 1.0) * 12.34;
+      float seedB = (f_index + 1.0) * 12.34 + u_calMode;
       float nB = getModeFromHash(hash(seedB), u_frequency);
-
-      // FORCE LOBES IF IN RANGE (No mixing between different lobe counts for stability)
-      if (u_frequency >= 2.0 && u_frequency < 12.0) {
-         nA = getModeFromHash(0.0, u_frequency);
-         nB = nA;
-         f_fract = 0.0;
-      }
-
-      // APPLY MANUAL OFFSET
-      nA += u_calMode;
-      nB += u_calMode;
 
       float k = getWavenumber(u_frequency);
       float w = u_time * u_frequency * 1.5;
@@ -262,20 +185,13 @@ const fragmentShaderSource = `
       float hB = calculateStandingWave(p, k, w, nB, seedB);
       float mainWave = mix(hA, hB, f_fract);
 
-      // ORGANIC RIDGE LOGIC (Bone-like structures for high viscosity)
-      if (u_density > 6.0) {
-          float ridge = abs(mainWave);
-          ridge = 1.0 - smoothstep(0.0, 0.4, ridge); 
-          mainWave = ridge * sign(mainWave) * 0.8;
-      }
-
-      // Micro waves
       float k_micro = k * 3.0; 
       float w_micro = w * 1.2; 
       float hMicroA = calculateStandingWave(p, k_micro, w_micro, 12.0, seedA + 33.1);
       float hMicroB = calculateStandingWave(p, k_micro, w_micro, 12.0, seedB + 33.1);
       float microWave = mix(hMicroA, hMicroB, f_fract);
 
+      // VISCOSITY EFFECT
       float densityFactor = max(1.0, u_density);
       float rawHeight = mainWave + (microWave * 0.2 / densityFactor);
 
@@ -283,14 +199,10 @@ const fragmentShaderSource = `
       float boundaryEnvelope = smoothstep(1.0, 0.90, shapeDist);
       float damping = 1.0 - (u_damping * 0.5 * shapeDist * shapeDist * bottomFriction);
       
-      // Viscosity shaping: sharp for water, round for oil
+      // SURFACE TENSION
       float sharpExp = 1.8 + (u_density * 0.2); 
-      // Inverse logic: High density = Rounder (lower exp impact)
-      if (u_density > 3.0) sharpExp = 1.0; 
-      
       float sharp = exp(sharpExp * (rawHeight - 0.2));
-      if (u_density > 3.0) sharp = rawHeight * 2.0; // Linear/Round
-
+      
       float staticMeniscus = smoothstep(0.95, 1.0, shapeDist) * 0.2;
 
       return ((sharp - 0.5) * u_amplitude * u_freqAmp * damping * boundaryEnvelope) + staticMeniscus;
@@ -311,30 +223,17 @@ const fragmentShaderSource = `
       vec3 hit = ro + rd * t;
       float r = length(hit.xy);
       float distToRing = abs(r - ringRadius);
-      
-      // Fixed core geometry size
-      float geoWidth = dotSizeParam * 0.1; 
+      float decay = 40.0 / max(0.01, spreadParam); 
+      float glow = exp(-distToRing * decay); 
       
       float angle = atan(hit.y, hit.x);
       float ledPhase = (angle / (2.0 * PI)) * countParam;
       float ledLocal = fract(ledPhase);
-      
-      // Core Dot Mask (Sharp)
-      float dotMask = smoothstep(0.5, 0.3, abs(ledLocal - 0.5)); 
-      
-      // Dynamic Spread based on Slope (The "Ribbon" effect)
-      // spreadParam controls how much the steepness expands the reflection acceptance
-      float raySteepness = 1.0 - abs(rd.z); // 0=flat, 1=vertical
-      float dynamicWidth = spreadParam * raySteepness * 3.0; // Multiplier tuned for visibility
-      
-      // Mask allows light if distance is within (base width + dynamic width)
-      // This stretches the dot radially on steep waves
-      float ringMask = smoothstep(geoWidth + 0.02 + dynamicWidth, geoWidth, distToRing);
-      
+      float dotSize = dotSizeParam * 0.5; 
+      float dot = smoothstep(dotSize + 0.1, dotSize, abs(ledLocal - 0.5));
       float continuity = smoothstep(48.0, 120.0, countParam);
-      float baseLight = mix(dotMask, 1.0, continuity) * ringMask;
-
-      return baseLight * intensityParam;
+      
+      return glow * mix(dot, 1.0, continuity) * intensityParam * step(distToRing, 0.15 * spreadParam);
   }
 
   void main() {
@@ -351,8 +250,9 @@ const fragmentShaderSource = `
       vec3 pos = vec3(uv, h * 0.15); 
       vec3 norm = getNormal(uv, h, d);
       
+      // Slope based ambient lighting (replacing zenith fill)
       float slope = 1.0 - norm.z;
-      vec3 ambientFill = vec3(1.0) * slope * 0.0; 
+      vec3 ambientFill = vec3(1.0) * slope * 0.0; // Currently disabled by user request, keeping logic just in case
 
       vec3 camPos = vec3(0.0, 0.0, u_camHeight);
       vec3 viewDir = normalize(pos - camPos);
@@ -384,7 +284,7 @@ const fragmentShaderSource = `
       float reflectionMask = smoothstep(0.98, 0.92, d);
       reflection *= reflectionMask;
 
-      vec3 baseColor = u_liquidColor * 0.02; 
+      vec3 baseColor = u_liquidColor * 0.02; // Very dark base
       vec3 finalColor = baseColor + reflection + ambientFill;
 
       gl_FragColor = vec4(finalColor, 1.0);
