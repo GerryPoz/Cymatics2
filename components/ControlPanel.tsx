@@ -532,10 +532,49 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
 
         </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+        
+        {/* CALIBRATION (LAB) */}
+        <div className="space-y-5">
+            <h3 className="text-[10px] uppercase tracking-widest text-yellow-500 font-bold mb-2">Taratura Strumentale (Lab)</h3>
+            
+            <div className="group">
+                <div className="flex justify-between mb-2">
+                    <label className="text-xs text-gray-400 group-hover:text-white transition-colors">K-Factor (Densità)</label>
+                    <span className="text-xs font-mono text-yellow-400">{params.calibrationKFactor ? params.calibrationKFactor.toFixed(2) : "1.00"}</span>
+                </div>
+                <input
+                    type="range"
+                    min="0.5"
+                    max="2.0"
+                    step="0.01"
+                    value={params.calibrationKFactor || 1.0}
+                    onChange={(e) => handleChange('calibrationKFactor', parseFloat(e.target.value))}
+                    className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-500 hover:accent-yellow-400"
+                />
+            </div>
+
+            <div className="group">
+                <div className="flex justify-between mb-2">
+                    <label className="text-xs text-gray-400 group-hover:text-white transition-colors">Mode Offset (Fase)</label>
+                    <span className="text-xs font-mono text-yellow-400">{params.calibrationModeOffset ? params.calibrationModeOffset.toFixed(2) : "0.00"}</span>
+                </div>
+                <input
+                    type="range"
+                    min="0.0"
+                    max="10.0"
+                    step="0.1"
+                    value={params.calibrationModeOffset || 0.0}
+                    onChange={(e) => handleChange('calibrationModeOffset', parseFloat(e.target.value))}
+                    className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-yellow-500 hover:accent-yellow-400"
+                />
+            </div>
+        </div>
       </div>
       
       <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest">
-        Studio Lab v5.0 - Physics Engine
+        Studio Lab v5.1 - Physics Engine
       </div>
     </div>
   );

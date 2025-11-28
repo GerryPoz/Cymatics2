@@ -39,6 +39,10 @@ const fragmentShaderSource = `
   uniform float u_density; // Viscosity
   uniform int u_shape; 
   
+  // Calibration
+  uniform float u_calK;
+  uniform float u_calMode;
+  
   uniform float u_camHeight;
   uniform vec3 u_liquidColor;
 
@@ -118,7 +122,8 @@ const fragmentShaderSource = `
   float getWavenumber(float freq) {
       float k_phys = pow(freq, 0.6666); 
       float depthFactor = 1.0 + (1.5 / sqrt(u_depth + 0.1));
-      return k_phys * u_diameter * 0.18 * depthFactor; 
+      // Calibration K Factor applied here
+      return k_phys * u_diameter * 0.18 * depthFactor * u_calK; 
   }
 
   float calculateStandingWave(vec2 p, float k, float t, float N, float seed) {
@@ -167,9 +172,10 @@ const fragmentShaderSource = `
       float f_index = floor(f_scaled);
       float f_fract = smoothstep(0.4, 0.6, fract(f_scaled)); 
       
-      float seedA = f_index * 12.34;
+      // Calibration Mode Offset applied to seeds
+      float seedA = f_index * 12.34 + u_calMode;
       float nA = getModeFromHash(hash(seedA), u_frequency);
-      float seedB = (f_index + 1.0) * 12.34;
+      float seedB = (f_index + 1.0) * 12.34 + u_calMode;
       float nB = getModeFromHash(hash(seedB), u_frequency);
 
       float k = getWavenumber(u_frequency);
@@ -243,6 +249,10 @@ const fragmentShaderSource = `
       float h = getSurfaceHeight(uv, d);
       vec3 pos = vec3(uv, h * 0.15); 
       vec3 norm = getNormal(uv, h, d);
+      
+      // Slope based ambient lighting (replacing zenith fill)
+      float slope = 1.0 - norm.z;
+      vec3 ambientFill = vec3(1.0) * slope * 0.0; // Currently disabled by user request, keeping logic just in case
 
       vec3 camPos = vec3(0.0, 0.0, u_camHeight);
       vec3 viewDir = normalize(pos - camPos);
@@ -275,7 +285,7 @@ const fragmentShaderSource = `
       reflection *= reflectionMask;
 
       vec3 baseColor = u_liquidColor * 0.02; // Very dark base
-      vec3 finalColor = baseColor + reflection;
+      vec3 finalColor = baseColor + reflection + ambientFill;
 
       gl_FragColor = vec4(finalColor, 1.0);
   }
@@ -360,6 +370,9 @@ class Renderer {
             cHeight: gl.getUniformLocation(program, "u_camHeight"),
             wCol: gl.getUniformLocation(program, "u_liquidColor"),
             
+            calK: gl.getUniformLocation(program, "u_calK"),
+            calMode: gl.getUniformLocation(program, "u_calMode"),
+
             lCol: gl.getUniformLocation(program, "u_ledColor"),
             lSize: gl.getUniformLocation(program, "u_ledSize"),
             lHeight: gl.getUniformLocation(program, "u_ledHeight"),
@@ -401,6 +414,8 @@ class Renderer {
         gl.uniform1f(this.uLoc.diam, p.diameter);
         gl.uniform1f(this.uLoc.dens, p.liquidDensity || 1.0); 
         gl.uniform1f(this.uLoc.cHeight, p.cameraHeight);
+        gl.uniform1f(this.uLoc.calK, p.calibrationKFactor || 1.0);
+        gl.uniform1f(this.uLoc.calMode, p.calibrationModeOffset || 0.0);
 
         let shapeInt = 0;
         if (p.containerShape === 'square') shapeInt = 1;

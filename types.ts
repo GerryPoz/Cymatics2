@@ -26,7 +26,7 @@ export interface SimulationParams {
   led2Intensity: number; 
   led2Count: number;     
 
-  // Ring 3 (Tertiary) - NEW
+  // Ring 3 (Tertiary)
   led3Color: string;     
   led3Size: number;      
   led3Height: number;    
@@ -44,6 +44,10 @@ export interface SimulationParams {
   containerShape: ContainerShape; 
 
   exportFrameStack: number; 
+
+  // Calibration (Lab)
+  calibrationKFactor: number;
+  calibrationModeOffset: number;
 }
 
 export interface Preset {
@@ -76,7 +80,7 @@ export const DEFAULT_PARAMS: SimulationParams = {
   led2Intensity: 3.0,
   led2Count: 60,
 
-  // Ring 3 - NEW
+  // Ring 3
   led3Color: "#00ffcc",  
   led3Size: 0.15,         
   led3Height: 6.0,       
@@ -93,5 +97,9 @@ export const DEFAULT_PARAMS: SimulationParams = {
   diameter: 9.0,
   containerShape: 'circle',
   
-  exportFrameStack: 1 
+  exportFrameStack: 1,
+
+  // Calibration defaults
+  calibrationKFactor: 1.0,
+  calibrationModeOffset: 0.0
 };
