@@ -61,13 +61,13 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
             </button>
             <div className="hidden md:block">
               <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-                CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v6.8</span>
+                CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v6.9</span>
               </h1>
               <p className="text-xs text-gray-400 mt-1 tracking-wide">SIMULATORE DI ONDE DI FARADAY</p>
             </div>
             {/* Mobile Header Simplified */}
             <div className="md:hidden">
-              <h1 className="text-lg font-bold text-blue-500">STUDIO LAB <span className="text-[9px] text-gray-600">v6.8</span></h1>
+              <h1 className="text-lg font-bold text-blue-500">STUDIO LAB <span className="text-[9px] text-gray-600">v6.9</span></h1>
             </div>
          </div>
 

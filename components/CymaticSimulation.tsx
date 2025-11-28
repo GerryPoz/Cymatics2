@@ -145,12 +145,12 @@ const fragmentShaderSource = `
   float calculateStandingWave(vec2 p, float k, float t, float N, float seed) {
       if (u_shape == 0) {
           // N = 1.0 -> DIPOLE (2 Lobes)
-          if (N == 1.0) {
+          if (abs(N - 1.0) < 0.1) {
              return cos(p.x * k) * cos(t);
           }
           
           // N = 1.5 -> TRIPOLE PHASED (3 Lobes)
-          if (N == 1.5) {
+          if (abs(N - 1.5) < 0.1) {
              float h = 0.0;
              // 3 waves at 120 degrees, phased in time
              for(int i=0; i<3; i++) {
@@ -164,12 +164,12 @@ const fragmentShaderSource = `
           }
 
           // N = 2.0 -> QUADRUPOLE (4 Lobes/Cross)
-          if (N == 2.0) {
+          if (abs(N - 2.0) < 0.1) {
              return (cos(p.x * k) * cos(t) + cos(p.y * k) * cos(t)) * 0.5;
           }
 
           // N = 2.5 -> PENTAGON (5 Lobes)
-          if (N == 2.5) {
+          if (abs(N - 2.5) < 0.1) {
              float h = 0.0;
              for(int i=0; i<5; i++) {
                  float a = float(i) * 1.2566; // 72 deg (2PI/5)
@@ -180,7 +180,7 @@ const fragmentShaderSource = `
           }
 
           // N = 3.0 -> HEXAGON (6 Lobes - 3 Axes)
-          if (N == 3.0) {
+          if (abs(N - 3.0) < 0.1) {
               float h = 0.0;
               for(int i=0; i<3; i++) {
                  float a = float(i) * 2.0944; // 120 deg
@@ -190,17 +190,17 @@ const fragmentShaderSource = `
               return h / 1.5;
           }
 
-          // General case for high N
+          // General case for high N or intermediate/offset values
           float h = 0.0;
           float staticRot = 0.0; 
-          for(float i = 0.0; i < 12.0; i++) {
+          for(float i = 0.0; i < 20.0; i++) {
               if(i >= N) break;
               float angle = staticRot + (i / N) * PI; 
               vec2 dir = vec2(cos(angle), sin(angle));
               float spatial = dot(p, dir) * k;
               h += cos(spatial) * cos(t);
           }
-          return h / N;
+          return h / max(1.0, N);
       }
 
       // Square Logic
@@ -239,9 +239,9 @@ const fragmentShaderSource = `
       float f_index = floor(f_scaled);
       float f_fract = smoothstep(0.4, 0.6, fract(f_scaled)); 
       
-      float seedA = f_index * 12.34 + u_calMode;
+      float seedA = f_index * 12.34;
       float nA = getModeFromHash(hash(seedA), u_frequency);
-      float seedB = (f_index + 1.0) * 12.34 + u_calMode;
+      float seedB = (f_index + 1.0) * 12.34;
       float nB = getModeFromHash(hash(seedB), u_frequency);
 
       // FORCE LOBES IF IN RANGE (No mixing between different lobe counts for stability)
@@ -250,6 +250,10 @@ const fragmentShaderSource = `
          nB = nA;
          f_fract = 0.0;
       }
+
+      // APPLY MANUAL OFFSET
+      nA += u_calMode;
+      nB += u_calMode;
 
       float k = getWavenumber(u_frequency);
       float w = u_time * u_frequency * 1.5;

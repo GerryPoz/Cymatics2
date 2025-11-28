@@ -574,7 +574,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     }
 
     return (
-      <div className="fixed top-0 right-0 h-full w-80 bg-black/90 backdrop-blur-md border-l border-gray-900 p-6 overflow-y-auto transition-transform z-40 shadow-2xl">
+      <div className="fixed top-0 right-0 h-full w-80 bg-black/90 backdrop-blur-md border-l border-gray-900 p-6 pr-8 overflow-y-auto transition-transform z-40 shadow-2xl">
         <div className="flex justify-between items-center mb-6 pt-2">
           <h2 className="text-lg font-light tracking-widest text-white border-b border-blue-900/50 pb-2 w-full">
             CONTROLLI <span className="text-blue-500 font-bold">STUDIO LAB</span>
@@ -596,7 +596,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         {renderLighting()}
         
         <div className="mt-12 text-[10px] text-gray-700 text-center uppercase tracking-widest pb-6">
-          Studio Lab v6.8 - Physics Engine
+          Studio Lab v6.9 - Physics Engine
         </div>
       </div>
     );
@@ -607,7 +607,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
     return (
       <div className="w-full h-full flex flex-col bg-black/95 border-t border-gray-800">
         {/* Content Area */}
-        <div className="flex-grow overflow-y-auto p-4 pb-0">
+        <div className="flex-grow overflow-y-auto p-4 pb-0 pr-10">
           {activeTab === 'GEN' && renderGeneral()}
           {activeTab === 'GEO' && renderGeometry()}
           {activeTab === 'WAVE' && renderWave()}
