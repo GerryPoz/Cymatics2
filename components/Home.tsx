@@ -297,8 +297,8 @@ export const Home: React.FC<HomeProps> = ({ onStart }) => {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
       </div>
 
-      {/* Content Wrapper - min-h-full to allow scrolling */}
-      <div className="relative z-10 w-full min-h-full flex flex-col">
+      {/* Content Wrapper - min-h-[100dvh] to handle mobile address bars correctly */}
+      <div className="relative z-10 w-full min-h-[100dvh] flex flex-col">
         {section === 'main' && renderMain()}
         {section === 'info' && renderInfo()}
         {section === 'applications' && renderApplications()}

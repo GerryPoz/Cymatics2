@@ -15,10 +15,8 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
   
   const simRef = useRef<SimulationHandle>(null);
 
-  // Display approximate mode for UI feedback based on the new hash logic
   const getApproxMode = (f: number) => {
       if (f < 0.1) return "FLAT (0 Hz)";
-      // Updated display logic to match shader v5.8
       if (f >= 2.0 && f < 4.0) return "DIPOLE (2 LOBES)";
       if (f >= 4.0 && f < 6.0) return "TRIPOLE (3 LOBES)";
       if (f >= 6.0 && f < 8.0) return "QUADRUPOLE (4 LOBES)";
@@ -45,68 +43,57 @@ export const SimulatorView: React.FC<SimulatorViewProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="relative w-screen h-screen bg-black overflow-hidden font-sans text-white select-none">
-      {/* Background Gradient / Overlay for aesthetics */}
-      <div className="absolute inset-0 pointer-events-none bg-radial-gradient from-transparent to-black opacity-50 z-10" />
+    <div className="relative w-screen h-[100dvh] bg-black overflow-hidden font-sans text-white select-none flex flex-col md:block">
       
-      {/* WebGL Simulation Canvas */}
-      <div className="absolute inset-0 z-0">
-        <CymaticSimulation ref={simRef} params={params} isPlaying={isPlaying} />
+      {/* --- DESKTOP: FULLSCREEN CANVAS | MOBILE: TOP 55% --- */}
+      <div className="flex-grow md:flex-grow-0 relative md:absolute md:inset-0 z-0 h-[55%] md:h-full">
+         <div className="absolute inset-0 pointer-events-none bg-radial-gradient from-transparent to-black opacity-50 z-10" />
+         <CymaticSimulation ref={simRef} params={params} isPlaying={isPlaying} />
+         
+         {/* HEADER OVERLAY */}
+         <div className="absolute top-4 left-4 z-20 flex items-start gap-4 pointer-events-none">
+            <button 
+              onClick={onBack}
+              className="pointer-events-auto mt-1 w-8 h-8 flex items-center justify-center rounded-full bg-gray-900/50 border border-gray-700 text-gray-400 hover:text-white hover:border-blue-500 hover:bg-blue-500/20 transition-all"
+              title="Torna alla Home"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </button>
+            <div className="hidden md:block">
+              <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
+                CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v6.8</span>
+              </h1>
+              <p className="text-xs text-gray-400 mt-1 tracking-wide">SIMULATORE DI ONDE DI FARADAY</p>
+            </div>
+            {/* Mobile Header Simplified */}
+            <div className="md:hidden">
+              <h1 className="text-lg font-bold text-blue-500">STUDIO LAB <span className="text-[9px] text-gray-600">v6.8</span></h1>
+            </div>
+         </div>
+
+         {/* STATUS OVERLAY */}
+         <div className="absolute bottom-4 left-4 z-20 pointer-events-none opacity-60">
+            <div className="flex flex-col gap-1 text-[9px] md:text-[10px] font-mono text-gray-400">
+              <div>FREQ: {params.frequency.toFixed(2)} Hz <span className="text-blue-400">[{currentMode}]</span></div>
+              <div className="hidden md:block">DIAM: {params.diameter.toFixed(1)} CM | DEPTH: {params.depth.toFixed(1)} CM</div>
+              <div>SPEED: {params.simulationSpeed.toFixed(2)}x</div>
+            </div>
+         </div>
       </div>
 
-      {/* Header / Overlay UI */}
-      <div className="absolute top-6 left-6 z-20 flex items-start gap-4 pointer-events-none">
-        {/* Back Button (Pointer events re-enabled) */}
-        <button 
-          onClick={onBack}
-          className="pointer-events-auto mt-1 w-8 h-8 flex items-center justify-center rounded-full bg-gray-900/50 border border-gray-700 text-gray-400 hover:text-white hover:border-blue-500 hover:bg-blue-500/20 transition-all"
-          title="Torna alla Home"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        </button>
-
-        <div>
-          <h1 className="text-3xl font-light tracking-tighter text-white opacity-90">
-            CYMATICS <span className="font-bold text-blue-500">STUDIO LAB</span> <span className="text-xs text-gray-600">v6.7</span>
-          </h1>
-          <p className="text-xs text-gray-400 mt-1 tracking-wide">
-            SIMULATORE DI ONDE DI FARADAY
-          </p>
-        </div>
+      {/* --- DESKTOP: SIDEBAR | MOBILE: BOTTOM 45% PANEL --- */}
+      <div className="md:static h-[45%] md:h-auto relative z-30">
+        <ControlPanel 
+          params={params} 
+          onChange={setParams} 
+          isHidden={controlsHidden}
+          toggleHidden={() => setControlsHidden(!controlsHidden)}
+          isPlaying={isPlaying}
+          onTogglePlay={() => setIsPlaying(!isPlaying)}
+          onExport={handleExport}
+        />
       </div>
 
-      {/* Instructions overlay if needed, or status info */}
-      <div className="absolute bottom-6 left-6 z-20 pointer-events-none opacity-60">
-        <div className="flex flex-col gap-1 text-[10px] font-mono text-gray-400">
-          <div>FREQ: {params.frequency.toFixed(2)} HZ</div>
-          <div>GEOMETRY: <span className="text-blue-400">{currentMode}</span></div>
-          <div>DIAM: {params.diameter.toFixed(1)} CM</div>
-          <div>DEPTH: {params.depth.toFixed(1)} CM</div>
-          <div>CAM Z: {params.cameraHeight.toFixed(1)}</div>
-          <div className="flex items-center gap-2">
-            RING 1: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.ledColor}}></span> R{params.ledRadius.toFixed(1)} / I:{params.ledIntensity.toFixed(1)}
-          </div>
-          <div className="flex items-center gap-2">
-            RING 2: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led2Color}}></span> R{params.led2Radius.toFixed(1)} / I:{params.led2Intensity.toFixed(1)}
-          </div>
-          <div className="flex items-center gap-2">
-            RING 3: <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: params.led3Color}}></span> R{params.led3Radius.toFixed(1)} / I:{params.led3Intensity.toFixed(1)}
-          </div>
-          <div>SPEED: {params.simulationSpeed.toFixed(2)}x</div>
-          <div>STATUS: {isPlaying ? 'RUNNING' : 'PAUSED'}</div>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <ControlPanel 
-        params={params} 
-        onChange={setParams} 
-        isHidden={controlsHidden}
-        toggleHidden={() => setControlsHidden(!controlsHidden)}
-        isPlaying={isPlaying}
-        onTogglePlay={() => setIsPlaying(!isPlaying)}
-        onExport={handleExport}
-      />
     </div>
   );
 };
