@@ -429,33 +429,38 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-3 mb-2">
+        {/* SEQUENCE: Height, Radius, Size, Density, Spread, Intensity */}
+        <div className="space-y-3">
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Altezza</label><span className="text-[10px] font-mono text-gray-400">{params.ledHeight.toFixed(1)}</span></div>
+              <input type="range" min="0.2" max="10.0" step="0.1" value={params.ledHeight} onChange={(e) => handleChange('ledHeight', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+           </div>
+
            <div>
               <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Raggio</label><span className="text-[10px] font-mono text-gray-400">{params.ledRadius.toFixed(1)}</span></div>
-              <input type="range" min="1.0" max="30.0" step="0.5" value={params.ledRadius} onChange={(e) => handleChange('ledRadius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+              <input type="range" min="1.0" max="30.0" step="0.1" value={params.ledRadius} onChange={(e) => handleChange('ledRadius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
            </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Dimensione LED</label><span className="text-[10px] font-mono text-gray-400">{params.ledSize.toFixed(2)}</span></div>
+              <input type="range" min="0.05" max="2.0" step="0.05" value={params.ledSize} onChange={(e) => handleChange('ledSize', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+           </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Densità</label><span className="text-[10px] font-mono text-gray-400">{params.ledCount.toFixed(0)}</span></div>
+              <input type="range" min="10" max="144" step="1" value={params.ledCount} onChange={(e) => handleChange('ledCount', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+           </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Estensione Riflesso</label><span className="text-[10px] font-mono text-gray-400">{params.ledSpread.toFixed(1)}</span></div>
+              <input type="range" min="0.2" max="4.0" step="0.1" value={params.ledSpread} onChange={(e) => handleChange('ledSpread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+           </div>
+
            <div>
               <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Intensità</label><span className="text-[10px] font-mono text-gray-400">{params.ledIntensity.toFixed(1)}</span></div>
-              <input type="range" min="0.1" max="10.0" step="0.1" value={params.ledIntensity} onChange={(e) => handleChange('ledIntensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+              <input type="range" min="0.0" max="10.0" step="0.1" value={params.ledIntensity} onChange={(e) => handleChange('ledIntensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
            </div>
         </div>
-        
-        <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Estensione Riflesso</label><span className="text-[10px] font-mono text-gray-400">{params.ledSpread.toFixed(1)}</span></div>
-        <input type="range" min="0.2" max="4.0" step="0.1" value={params.ledSpread} onChange={(e) => handleChange('ledSpread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 mb-2" />
-
-        <details className="text-[10px] text-gray-500">
-           <summary className="cursor-pointer hover:text-purple-400">Avanzate</summary>
-           <div className="pt-2 pl-2 border-l border-gray-800 mt-1">
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Altezza</label><span className="font-mono">{params.ledHeight.toFixed(1)}</span></div>
-                <input type="range" min="0.2" max="10.0" step="0.1" value={params.ledHeight} onChange={(e) => handleChange('ledHeight', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 mb-2" />
-                
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Dimensione LED</label><span className="font-mono">{params.ledSize.toFixed(2)}</span></div>
-                <input type="range" min="0.05" max="2.0" step="0.05" value={params.ledSize} onChange={(e) => handleChange('ledSize', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500 mb-2" />
-
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Densità</label><span className="font-mono">{params.ledCount.toFixed(0)}</span></div>
-                <input type="range" min="10" max="144" step="1" value={params.ledCount} onChange={(e) => handleChange('ledCount', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
-           </div>
-        </details>
       </div>
 
       {/* RING 2 */}
@@ -467,32 +472,37 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-3 mb-2">
+        <div className="space-y-3">
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Altezza</label><span className="text-[10px] font-mono text-gray-400">{params.led2Height.toFixed(1)}</span></div>
+              <input type="range" min="0.2" max="10.0" step="0.1" value={params.led2Height} onChange={(e) => handleChange('led2Height', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
+           </div>
+
            <div>
               <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Raggio</label><span className="text-[10px] font-mono text-gray-400">{params.led2Radius.toFixed(1)}</span></div>
-              <input type="range" min="1.0" max="30.0" step="0.5" value={params.led2Radius} onChange={(e) => handleChange('led2Radius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
+              <input type="range" min="1.0" max="30.0" step="0.1" value={params.led2Radius} onChange={(e) => handleChange('led2Radius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
            </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Dimensione LED</label><span className="text-[10px] font-mono text-gray-400">{params.led2Size.toFixed(2)}</span></div>
+              <input type="range" min="0.05" max="2.0" step="0.05" value={params.led2Size} onChange={(e) => handleChange('led2Size', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
+           </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Densità</label><span className="text-[10px] font-mono text-gray-400">{params.led2Count.toFixed(0)}</span></div>
+              <input type="range" min="10" max="144" step="1" value={params.led2Count} onChange={(e) => handleChange('led2Count', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
+           </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Estensione Riflesso</label><span className="text-[10px] font-mono text-gray-400">{params.led2Spread.toFixed(1)}</span></div>
+              <input type="range" min="0.2" max="4.0" step="0.1" value={params.led2Spread} onChange={(e) => handleChange('led2Spread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
+           </div>
+
            <div>
               <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Intensità</label><span className="text-[10px] font-mono text-gray-400">{params.led2Intensity.toFixed(1)}</span></div>
-              <input type="range" min="0.1" max="10.0" step="0.1" value={params.led2Intensity} onChange={(e) => handleChange('led2Intensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
+              <input type="range" min="0.0" max="10.0" step="0.1" value={params.led2Intensity} onChange={(e) => handleChange('led2Intensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
            </div>
         </div>
-         <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Estensione Riflesso</label><span className="text-[10px] font-mono text-gray-400">{params.led2Spread.toFixed(1)}</span></div>
-         <input type="range" min="0.2" max="4.0" step="0.1" value={params.led2Spread} onChange={(e) => handleChange('led2Spread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 mb-2" />
-
-         <details className="text-[10px] text-gray-500">
-           <summary className="cursor-pointer hover:text-pink-400">Avanzate</summary>
-           <div className="pt-2 pl-2 border-l border-gray-800 mt-1">
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Altezza</label><span className="font-mono">{params.led2Height.toFixed(1)}</span></div>
-                <input type="range" min="0.2" max="10.0" step="0.1" value={params.led2Height} onChange={(e) => handleChange('led2Height', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 mb-2" />
-                
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Dimensione LED</label><span className="font-mono">{params.led2Size.toFixed(2)}</span></div>
-                <input type="range" min="0.05" max="2.0" step="0.05" value={params.led2Size} onChange={(e) => handleChange('led2Size', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500 mb-2" />
-
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Densità</label><span className="font-mono">{params.led2Count.toFixed(0)}</span></div>
-                <input type="range" min="10" max="144" step="1" value={params.led2Count} onChange={(e) => handleChange('led2Count', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-pink-500" />
-           </div>
-        </details>
       </div>
 
       {/* RING 3 */}
@@ -504,32 +514,37 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-3 mb-2">
+        <div className="space-y-3">
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Altezza</label><span className="text-[10px] font-mono text-gray-400">{params.led3Height.toFixed(1)}</span></div>
+              <input type="range" min="0.2" max="10.0" step="0.1" value={params.led3Height} onChange={(e) => handleChange('led3Height', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+           </div>
+
            <div>
               <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Raggio</label><span className="text-[10px] font-mono text-gray-400">{params.led3Radius.toFixed(1)}</span></div>
-              <input type="range" min="1.0" max="30.0" step="0.5" value={params.led3Radius} onChange={(e) => handleChange('led3Radius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+              <input type="range" min="1.0" max="30.0" step="0.1" value={params.led3Radius} onChange={(e) => handleChange('led3Radius', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
            </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Dimensione LED</label><span className="text-[10px] font-mono text-gray-400">{params.led3Size.toFixed(2)}</span></div>
+              <input type="range" min="0.05" max="2.0" step="0.05" value={params.led3Size} onChange={(e) => handleChange('led3Size', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+           </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Densità</label><span className="text-[10px] font-mono text-gray-400">{params.led3Count.toFixed(0)}</span></div>
+              <input type="range" min="10" max="144" step="1" value={params.led3Count} onChange={(e) => handleChange('led3Count', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+           </div>
+
+           <div>
+              <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Estensione Riflesso</label><span className="text-[10px] font-mono text-gray-400">{params.led3Spread.toFixed(1)}</span></div>
+              <input type="range" min="0.2" max="4.0" step="0.1" value={params.led3Spread} onChange={(e) => handleChange('led3Spread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+           </div>
+
            <div>
               <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Intensità</label><span className="text-[10px] font-mono text-gray-400">{params.led3Intensity.toFixed(1)}</span></div>
-              <input type="range" min="0.1" max="10.0" step="0.1" value={params.led3Intensity} onChange={(e) => handleChange('led3Intensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+              <input type="range" min="0.0" max="10.0" step="0.1" value={params.led3Intensity} onChange={(e) => handleChange('led3Intensity', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
            </div>
         </div>
-         <div className="flex justify-between mb-1"><label className="text-[10px] text-gray-500">Estensione Riflesso</label><span className="text-[10px] font-mono text-gray-400">{params.led3Spread.toFixed(1)}</span></div>
-         <input type="range" min="0.2" max="4.0" step="0.1" value={params.led3Spread} onChange={(e) => handleChange('led3Spread', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
-
-         <details className="text-[10px] text-gray-500">
-           <summary className="cursor-pointer hover:text-emerald-400">Avanzate</summary>
-           <div className="pt-2 pl-2 border-l border-gray-800 mt-1">
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Altezza</label><span className="font-mono">{params.led3Height.toFixed(1)}</span></div>
-                <input type="range" min="0.2" max="10.0" step="0.1" value={params.led3Height} onChange={(e) => handleChange('led3Height', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
-                
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Dimensione LED</label><span className="font-mono">{params.led3Size.toFixed(2)}</span></div>
-                <input type="range" min="0.05" max="2.0" step="0.05" value={params.led3Size} onChange={(e) => handleChange('led3Size', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 mb-2" />
-
-                <div className="flex justify-between mb-1"><label className="text-[10px]">Densità</label><span className="font-mono">{params.led3Count.toFixed(0)}</span></div>
-                <input type="range" min="10" max="144" step="1" value={params.led3Count} onChange={(e) => handleChange('led3Count', parseFloat(e.target.value))} className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
-           </div>
-        </details>
       </div>
 
       <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent my-6" />
