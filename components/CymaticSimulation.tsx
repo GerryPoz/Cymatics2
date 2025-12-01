@@ -29,6 +29,10 @@ const fragmentShaderSource = `
   uniform vec2 u_resolution;
   uniform float u_time;
   
+  // Interactive Zoom
+  uniform float u_zoom;
+  uniform vec2 u_zoomCenter;
+  
   // Physics params
   uniform float u_frequency;
   uniform float u_amplitude;
@@ -102,16 +106,20 @@ const fragmentShaderSource = `
 
   float getModeFromHash(float h, float freq) {
       float val = h * 10.0;
+      
+      // Determine low frequency deterministic progression
+      if (freq < 3.0) return 1.0; // Dipole (2 lobes, N=1)
+      if (freq < 5.0) return 1.5; // Tripole (3 lobes, N=1.5 phased)
+      if (freq < 8.0) return 2.0; // Quadrupole (4 lobes, N=2)
+      if (freq < 10.0) return 2.5; // Pentagon (5 lobes, N=2.5 phased)
+      if (freq < 12.0) return 3.0; // Hexagon (6 lobes, N=3)
+
       if (u_shape == 1) {
          if (val < 5.0) return 2.0; 
          return 4.0;
       }
       if (u_shape == 2 || u_shape == 3) return 3.0;
 
-      if (freq < 15.0) {
-         if (val < 5.0) return 4.0; 
-         return 3.0; 
-      }
       if (val < 4.0) return 6.0; 
       if (val < 7.0) return 4.0; 
       if (val < 8.0) return 12.0; 
@@ -127,17 +135,54 @@ const fragmentShaderSource = `
   }
 
   float calculateStandingWave(vec2 p, float k, float t, float N, float seed) {
+      // N=1.5 SPECIAL CASE: PHASED TRIPOLE (3 Lobes)
+      // Standard N=3 creates 6 lobes. To get 3, we sum 3 waves at 120 deg
+      // BUT we phase shift them in time by 2PI/3 relative to each other.
+      if (abs(N - 1.5) < 0.1) {
+          float h = 0.0;
+          for(int i=0; i<3; i++) {
+             float angle = float(i) * (2.0 * PI / 3.0);
+             vec2 dir = vec2(cos(angle), sin(angle));
+             // Temporal phase shift is key here
+             float timePhase = float(i) * (2.0 * PI / 3.0); 
+             h += cos(dot(p, dir) * k * 0.8) * cos(t + timePhase);
+          }
+          return h / 1.5;
+      }
+      
+      // N=2.5 SPECIAL CASE: PHASED PENTAGON (5 Lobes)
+      // Standard N=5 creates 10 lobes. Using phase shift again.
+      if (abs(N - 2.5) < 0.1) {
+          float h = 0.0;
+          for(int i=0; i<5; i++) {
+             float angle = float(i) * (2.0 * PI / 5.0);
+             vec2 dir = vec2(cos(angle), sin(angle));
+             float timePhase = float(i) * (4.0 * PI / 5.0); 
+             h += cos(dot(p, dir) * k * 0.8) * cos(t + timePhase);
+          }
+          return h / 2.0;
+      }
+
       if (u_shape == 0) {
           float h = 0.0;
           float staticRot = 0.0; 
+          
+          // Use N directly. 
+          // N=1 (loop 1 time) -> cos(x)*cos(t) -> Dipole (2 lobes)
+          // N=2 (loop 2 times, 90 deg) -> Quadrupole (4 lobes)
+          // N=3 (loop 3 times, 60 deg) -> Hexagon (6 lobes)
+          
+          float loopCount = floor(N); 
+          if (loopCount < 1.0) loopCount = 1.0;
+          
           for(float i = 0.0; i < 12.0; i++) {
-              if(i >= N) break;
-              float angle = staticRot + (i / N) * PI; 
+              if(i >= loopCount) break;
+              float angle = staticRot + (i / loopCount) * PI; 
               vec2 dir = vec2(cos(angle), sin(angle));
               float spatial = dot(p, dir) * k;
               h += cos(spatial) * cos(t);
           }
-          return h / N;
+          return h / max(1.0, loopCount * 0.5);
       }
       if (u_shape == 1) {
           float rot = floor(seed) * (PI * 0.25); 
@@ -166,7 +211,7 @@ const fragmentShaderSource = `
       if (shapeDist > 1.0) return 0.0;
       if (u_frequency < 0.1) return 0.0;
 
-      float effectiveFreq = u_frequency + (u_depth * 0.7); 
+      float effectiveFreq = u_frequency; // Decoupled from depth
       float stabilityScale = 0.5; 
       float f_scaled = effectiveFreq * stabilityScale;
       float f_index = floor(f_scaled);
@@ -177,6 +222,10 @@ const fragmentShaderSource = `
       float nA = getModeFromHash(hash(seedA), u_frequency);
       float seedB = (f_index + 1.0) * 12.34 + u_calMode;
       float nB = getModeFromHash(hash(seedB), u_frequency);
+
+      // Apply Manual Offset to N directly
+      nA += u_calMode;
+      nB += u_calMode;
 
       float k = getWavenumber(u_frequency);
       float w = u_time * u_frequency * 1.5;
@@ -191,17 +240,35 @@ const fragmentShaderSource = `
       float hMicroB = calculateStandingWave(p, k_micro, w_micro, 12.0, seedB + 33.1);
       float microWave = mix(hMicroA, hMicroB, f_fract);
 
-      // VISCOSITY EFFECT
+      // ORGANIC RIDGE LOGIC (Bone/Smoke structure for high viscosity)
       float densityFactor = max(1.0, u_density);
-      float rawHeight = mainWave + (microWave * 0.2 / densityFactor);
+      float rawHeight = mainWave;
+      
+      // If density is high (> 6.0), invert shape to make ridges/tubes instead of peaks
+      if (u_density > 6.0) {
+          // Absolute value creates valleys/ridges from sine waves
+          float organic = abs(mainWave); 
+          // Smoothstep creates flat areas and sharp ridges
+          organic = smoothstep(0.2, 0.8, organic);
+          // Invert so high points are the ridges
+          rawHeight = 1.0 - organic;
+      } else {
+          // Standard water physics
+           rawHeight = mainWave + (microWave * 0.2 / densityFactor);
+      }
 
       float bottomFriction = 1.0 + (1.0 / (u_depth + 0.1));
       float boundaryEnvelope = smoothstep(1.0, 0.90, shapeDist);
       float damping = 1.0 - (u_damping * 0.5 * shapeDist * shapeDist * bottomFriction);
       
-      // SURFACE TENSION
-      float sharpExp = 1.8 + (u_density * 0.2); 
-      float sharp = exp(sharpExp * (rawHeight - 0.2));
+      // SURFACE TENSION SHAPING
+      float sharp;
+      if (u_density > 6.0) {
+          sharp = rawHeight; // Keep organic shape
+      } else {
+          float sharpExp = 1.8 + (u_density * 0.2); 
+          sharp = exp(sharpExp * (rawHeight - 0.2));
+      }
       
       float staticMeniscus = smoothstep(0.95, 1.0, shapeDist) * 0.2;
 
@@ -223,21 +290,45 @@ const fragmentShaderSource = `
       vec3 hit = ro + rd * t;
       float r = length(hit.xy);
       float distToRing = abs(r - ringRadius);
+      
+      // Calculate ray steepness (1.0 is vertical, 0.0 is horizontal)
+      float raySteepness = 1.0 - abs(rd.z);
+      
+      // RIBBON EFFECT:
+      // If spreadParam is high, we allow reflections from steeper rays (sides of waves)
+      // We effectively widen the "hit zone" based on how steep the ray is.
+      float effectiveSpread = 0.15 * max(1.0, spreadParam * raySteepness * 4.0);
+      
+      // Check if ray hits the ring band
+      float ringHit = step(distToRing, effectiveSpread);
+      if (ringHit < 0.5) return 0.0;
+
+      // GLOW DECAY
       float decay = 40.0 / max(0.01, spreadParam); 
       float glow = exp(-distToRing * decay); 
       
+      // DOT PATTERN
       float angle = atan(hit.y, hit.x);
       float ledPhase = (angle / (2.0 * PI)) * countParam;
       float ledLocal = fract(ledPhase);
+      
+      // Keep dots round by using fixed dotSizeParam regardless of spread
       float dotSize = dotSizeParam * 0.5; 
       float dot = smoothstep(dotSize + 0.1, dotSize, abs(ledLocal - 0.5));
+      
       float continuity = smoothstep(48.0, 120.0, countParam);
       
-      return glow * mix(dot, 1.0, continuity) * intensityParam * step(distToRing, 0.15 * spreadParam);
+      return glow * mix(dot, 1.0, continuity) * intensityParam;
   }
 
   void main() {
+      // 1. Normalize coords
       vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.y, u_resolution.x);
+      
+      // 2. Apply Interactive Zoom
+      uv = (uv - u_zoomCenter) / u_zoom + u_zoomCenter;
+      
+      // 3. Apply Base Scale
       uv *= 2.3; 
 
       float d = getShapeDist(uv);
@@ -250,9 +341,9 @@ const fragmentShaderSource = `
       vec3 pos = vec3(uv, h * 0.15); 
       vec3 norm = getNormal(uv, h, d);
       
-      // Slope based ambient lighting (replacing zenith fill)
+      // Slope based ambient lighting
       float slope = 1.0 - norm.z;
-      vec3 ambientFill = vec3(1.0) * slope * 0.0; // Currently disabled by user request, keeping logic just in case
+      vec3 ambientFill = vec3(1.0) * slope * 0.0; 
 
       vec3 camPos = vec3(0.0, 0.0, u_camHeight);
       vec3 viewDir = normalize(pos - camPos);
@@ -359,6 +450,8 @@ class Renderer {
         this.uLoc = {
             res: gl.getUniformLocation(program, "u_resolution"),
             time: gl.getUniformLocation(program, "u_time"),
+            zoom: gl.getUniformLocation(program, "u_zoom"),
+            zoomCenter: gl.getUniformLocation(program, "u_zoomCenter"),
             freq: gl.getUniformLocation(program, "u_frequency"),
             amp: gl.getUniformLocation(program, "u_amplitude"),
             freqAmp: gl.getUniformLocation(program, "u_freqAmp"),
@@ -399,13 +492,15 @@ class Renderer {
         };
     }
 
-    render(p: SimulationParams, time: number, width: number, height: number) {
+    render(p: SimulationParams, time: number, width: number, height: number, zoomLevel: number, zoomCenter: {x: number, y: number}) {
         const gl = this.gl;
         gl.viewport(0, 0, width, height);
         gl.useProgram(this.program);
 
         gl.uniform2f(this.uLoc.res, width, height);
         gl.uniform1f(this.uLoc.time, time);
+        gl.uniform1f(this.uLoc.zoom, zoomLevel);
+        gl.uniform2f(this.uLoc.zoomCenter, zoomCenter.x, zoomCenter.y);
         gl.uniform1f(this.uLoc.freq, p.frequency);
         gl.uniform1f(this.uLoc.amp, p.amplitude);
         gl.uniform1f(this.uLoc.freqAmp, p.frequencyAmplification || 1.0); 
@@ -476,6 +571,12 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
   const timeRef = useRef(0);
   const animIdRef = useRef<number>(0);
 
+  // ZOOM STATE
+  const [zoomLevel, setZoomLevel] = useState(1.0);
+  const [zoomCenter, setZoomCenter] = useState({x: 0, y: 0});
+  const zoomLevelRef = useRef(1.0);
+  const zoomCenterRef = useRef({x: 0, y: 0});
+
   useLayoutEffect(() => {
     paramsRef.current = params;
   }, [params]);
@@ -483,6 +584,45 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
   useLayoutEffect(() => {
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
+
+  useLayoutEffect(() => {
+    zoomLevelRef.current = zoomLevel;
+    zoomCenterRef.current = zoomCenter;
+  }, [zoomLevel, zoomCenter]);
+
+  // Click Handler for Zoom
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (zoomLevelRef.current > 1.0) {
+        // Reset Zoom
+        setZoomLevel(1.0);
+        setZoomCenter({x: 0, y: 0});
+    } else {
+        // Zoom In
+        const rect = canvasRef.current!.getBoundingClientRect();
+        
+        // Calculate coordinates centered around 0,0 relative to min dimension (normalized)
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const minDim = Math.min(rect.width, rect.height);
+        
+        // Coordinate system matching the shader's UV logic
+        // Center X, Y relative to center of canvas
+        const cx = x - rect.width * 0.5;
+        const cy = (rect.height - y) - rect.height * 0.5; // Flip Y because fragCoord y is bottom-up
+        
+        // Normalize by min dimension
+        const u = cx / minDim;
+        const v = cy / minDim;
+        
+        // Apply 2.3 scale factor from shader
+        const targetX = u * 2.3;
+        const targetY = v * 2.3;
+        
+        setZoomCenter({x: targetX, y: targetY});
+        setZoomLevel(2.5);
+    }
+  };
 
   // Initialize Main Renderer
   useEffect(() => {
@@ -527,7 +667,13 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
             
             // Draw Main Scene
             if (isPlayingRef.current || paramsRef.current.exportFrameStack <= 1) {
-               rendererRef.current.render(paramsRef.current, timeRef.current, w, h);
+               rendererRef.current.render(
+                   paramsRef.current, 
+                   timeRef.current, 
+                   w, h, 
+                   zoomLevelRef.current, 
+                   zoomCenterRef.current
+               );
             }
         }
         
@@ -553,7 +699,7 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
     if (isPlaying || params.exportFrameStack <= 1) {
         overlayCanvas.style.opacity = '0';
         // Ensure WebGL shows current frame
-        renderer.render(paramsRef.current, timeRef.current, glCanvas.width, glCanvas.height);
+        renderer.render(paramsRef.current, timeRef.current, glCanvas.width, glCanvas.height, zoomLevel, zoomCenter);
         return;
     }
 
@@ -577,14 +723,14 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
 
     for (let i = 0; i < stack; i++) {
         const t = timeRef.current + (i * dt * paramsRef.current.simulationSpeed);
-        renderer.render(paramsRef.current, t, glCanvas.width, glCanvas.height);
+        renderer.render(paramsRef.current, t, glCanvas.width, glCanvas.height, zoomLevel, zoomCenter);
         ctx.drawImage(glCanvas, 0, 0);
     }
     
     // Restore visual state of main canvas
-    renderer.render(paramsRef.current, timeRef.current, glCanvas.width, glCanvas.height);
+    renderer.render(paramsRef.current, timeRef.current, glCanvas.width, glCanvas.height, zoomLevel, zoomCenter);
 
-  }, [params, isPlaying]);
+  }, [params, isPlaying, zoomLevel, zoomCenter]);
 
   // EXPORT LOGIC WITH ISOLATED RENDERER
   useImperativeHandle(ref, () => ({
@@ -622,9 +768,10 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
         const dt = 0.016;
         
         // 3. Render Stack
+        // Note: We always export at 1.0 zoom level (Full View)
         for (let i = 0; i < frameCount; i++) {
             const t = timeRef.current + (i * dt * paramsRef.current.simulationSpeed);
-            exportRenderer.render(paramsRef.current, t, hdWidth, hdHeight);
+            exportRenderer.render(paramsRef.current, t, hdWidth, hdHeight, 1.0, {x:0, y:0});
             ctx.drawImage(exportCanvas, 0, 0);
         }
 
@@ -667,7 +814,11 @@ export const CymaticSimulation = forwardRef<SimulationHandle, Props>(({ params, 
 
   return (
     <div className="relative w-full h-full">
-        <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full block" />
+        <canvas 
+            ref={canvasRef} 
+            className={`absolute top-0 left-0 w-full h-full block ${zoomLevel > 1.0 ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+            onClick={handleCanvasClick}
+        />
         <canvas ref={overlayRef} className="absolute top-0 left-0 w-full h-full block pointer-events-none opacity-0 transition-opacity duration-200" />
     </div>
   );
